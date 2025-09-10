@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Suyan Rai - Portfolio</title>
+  <style>
+    /* Global Styles */
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #ffffff;
+      color: #333333;
+      scroll-behavior: smooth;
+    }
+    a {
+      text-decoration: none;
+      color: inherit;
+    }
+
+    /* Header / Hero Section */
+    header {
+      background-color: #001f3f; /* Navy */
+      color: white;
+      text-align: center;
+      padding: 60px 20px;
+    }
+    header img {
+      width: 150px;
+      height: 150px;
+      border-radius: 50%;
+      object-fit: cover;
+      margin-bottom: 20px;
+    }
+    header h1 {
+      margin: 10px 0;
+      font-size: 2.5em;
+    }
+    header p {
+      font-size: 1.2em;
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+    /* Navigation */
+    nav {
+      display: flex;
+      justify-content: center;
+      background-color: #f0f0f0;
+      padding: 10px 0;
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+    }
+    nav a {
+      margin: 0 15px;
+      font-weight: bold;
+      color: #001f3f;
+      transition: color 0.3s;
+    }
+    nav a:hover {
+      color: #ff6600; /* Vibrant accent color */
+    }
+
+    /* Section Styles */
+    section {
+      padding: 60px 20px;
+      max-width: 900px;
+      margin: auto;
+    }
+    section h2 {
+      text-align: center;
+      color: #001f3f;
+      margin-bottom: 40px;
+      font-size: 2em;
+    }
+    section p {
+      line-height: 1.8;
+      margin-bottom: 20px;
+    }
+    ul {
+      list-style-type: none;
+      padding: 0;
+    }
+
+    /* Contact Form */
+    form {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+    input, textarea {
+      padding: 10px;
+      border: 1px solid #cccccc;
+      border-radius: 5px;
+      font-size: 1em;
+    }
+    button {
+      background-color: #001f3f;
+      color: white;
+      padding: 12px;
+      border: none;
+      border-radius: 5px;
+      font-size: 1em;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+    button:hover {
+      background-color: #ff6600;
+    }
+
+    /* Footer */
+    footer {
+      text-align: center;
+      padding: 20px;
+      background-color: #f0f0f0;
+      color: #666666;
+    }
+
+    /* Responsive */
+    @media(max-width: 600px) {
+      header h1 {
+        font-size: 2em;
+      }
+      section {
+        padding: 40px 15px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Navigation -->
+  <nav>
+    <a href="#about">About</a>
+    <a href="#experience">Experience</a>
+    <a href="#skills">Skills</a>
+    <a href="#projects">Projects</a>
+    <a href="#contact">Contact</a>
+  </nav>
+
+  <!-- Header / Hero Section -->
+  <header>
+    <img src="profile.jpg" alt="Suyan Rai">
+    <h1>Suyan Rai</h1>
+    <p>International Business Management Student | Problem-Solver | Multilingual Professional</p>
+  </header>
+
+  <!-- About Section -->
+  <section id="about">
+    <h2>About Me</h2>
+    <p>I’m Suyan Rai, an international student at Dong-a University, majoring in International Business Management (IBM). Outside of academics, I enjoy listening to music, surfing the internet, and simple activities like cleaning to refresh my mind. At this stage of my journey, I’m deeply focused on personal growth and my studies, with the goal of building a strong foundation for my future career.</p>
+    <p>Education:</p>
+    <ul>
+      <li>Secondary education (Grade 10) at Brain Land Academy Higher Secondary School, Nepal, 2021</li>
+      <li>Higher secondary (Science stream) at Bagmati College, Nepal, 2023</li>
+      <li>Currently studying International Business Management at Dong-a University</li>
+    </ul>
+  </section>
+
+  <!-- Work Experience Section -->
+  <section id="experience">
+    <h2>Work Experience</h2>
+    <p>I have gained valuable experience through part-time and volunteer roles. I worked as a sales assistant at my sister’s clothing store, developing customer service and communication skills. Alongside this, I spent a year tutoring elementary and lower secondary students, strengthening my teaching and mentoring abilities. I have also actively participated in community service, volunteering at temples and serving as a member of the Red Cross Society Club during my college years.</p>
+  </section>
+
+  <!-- Skills Section -->
+  <section id="skills">
+    <h2>Skills</h2>
+    <p>I am skilled in problem-solving, especially when working within a team, and I value collaboration to achieve common goals. My communication skills allow me to connect effectively with others in different settings. In addition, I am multilingual and can confidently speak Hindi, English, and Nepali, which helps me adapt and engage in diverse environments.</p>
+  </section>
+
+  <!-- Projects Section -->
+  <section id="projects">
+    <h2>Projects</h2>
+    <p>I have actively engaged in several academic projects, particularly in biology, where I explored various aspects of plant life. In addition, I have created numerous mini projects during my school years, which helped me develop hands-on experience, creativity, and a strong problem-solving mindset.</p>
+  </section>
+
+  <!-- Contact Section -->
+  <section id="contact">
+    <h2>Contact Me</h2>
+    <p>Email: <a href="mailto:suyanrai73@gmail.com">suyanrai73@gmail.com</a></p>
+    <form>
+      <input type="text" placeholder="Your Name" required>
+      <input type="email" placeholder="Your Email" required>
+      <input type="text" placeholder="Subject" required>
+      <textarea rows="5" placeholder="Message" required></textarea>
+      <button type="submit">Send Message</button>
+    </form>
+  </section>
+
+  <!-- Footer -->
+  <footer>
+    &copy; 2025 Suyan Rai. All rights reserved.
+  </footer>
+
+</body>
+</html>
