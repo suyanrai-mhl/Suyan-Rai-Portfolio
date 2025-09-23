@@ -125,90 +125,16 @@
       section {
         padding: 40px 15px;
       }
-       .container {
-            background-color: rgba(255, 255, 255, 0.9);
-            border-radius: 15px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-            width: 90%;
-            max-width: 500px;
-            padding: 30px;
-            text-align: center;
-        }
-        
-        h1 {
-            color: #333;
-            margin-bottom: 30px;
-            font-size: 2.2rem;
-        }
-        
-        .button-container {
+      body_link {
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d);
+            min-height: 100vh;
             display: flex;
-            flex-direction: column;
-            gap: 20px;
-        }
-        
-        .game-button {
-            display: flex;
-            align-items: center;
             justify-content: center;
-            background: white;
-            border: none;
-            border-radius: 10px;
-            padding: 15px 25px;
-            font-size: 1.2rem;
-            font-weight: 600;
-            color: #333;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            text-decoration: none;
-        }
-        
-        .game-button:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
-        }
-        
-        .game-button:active {
-            transform: translateY(1px);
-        }
-        
-        .original {
-            background: linear-gradient(to right, #ff7e5f, #feb47b);
-            color: white;
-        }
-        
-        .updated {
-            background: linear-gradient(to right, #00c6ff, #0072ff);
-            color: white;
-        }
-        
-        .chat {
-            background: linear-gradient(to right, #8e2de2, #4a00e0);
-            color: white;
-        }
-        
-        .button-icon {
-            margin-right: 10px;
-            font-size: 1.3rem;
-        }
-        
-        footer {
-            margin-top: 30px;
-            color: #666;
-            font-size: 0.9rem;
-        }
-        
-        @media (max-width: 600px) {
-            h1 {
-                font-size: 1.8rem;
-            }
-            
-            .game-button {
-                font-size: 1rem;
-                padding: 12px 20px;
-            }
-        
+            align-items: center;
+        }  
     }
   </style>
 </head>
@@ -279,32 +205,127 @@
   </footer>
   <content><li>
   
-    <div class="button-container">
-      
-      <a href="https://docs.google.com/document/d/1wJk6K1Wd87CjyNxCKHWDEf2gbxWCeWoM/edit?usp=drivesdk&ouid=108327592760081282446&rtpof=true&sd=true" target="_blank" class="game-button original">
-                <span class="button-icon">📄</span>
+   <body_link>
+    <div style="
+        background-color: rgba(255, 255, 255, 0.9);
+        border-radius: 15px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        width: 90%;
+        max-width: 500px;
+        padding: 30px;
+        text-align: center;
+    ">
+        <h1 style="color: #333; margin-bottom: 30px; font-size: 2.2rem;">Game Links</h1>
+        
+        <div style="
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        ">
+            <a href="https://docs.google.com/document/d/1wJk6K1Wd87CjyNxCKHWDEf2gbxWCeWoM/edit?usp=drivesdk&ouid=108327592760081282446&rtpof=true&sd=true" 
+               target="_blank" 
+               style="
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                background: linear-gradient(to right, #ff7e5f, #feb47b);
+                border: none;
+                border-radius: 10px;
+                padding: 15px 25px;
+                font-size: 1.2rem;
+                font-weight: 600;
+                color: white;
+                cursor: pointer;
+                transition: all 0.3s ease;
+                box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+                text-decoration: none;
+            " onmouseover="this.style.transform='translateY(-3px)'; this.style.boxShadow='0 6px 12px rgba(0, 0, 0, 0.15)'" 
+            onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 8px rgba(0, 0, 0, 0.1)'">
+                <span style="margin-right: 10px; font-size: 1.3rem;">📄</span>
                 My Docs Link
-            </a>      
-      <a href="https://suyanrai-mhl.github.io/Suyan-Rai-Portfolio/game.html" target="_blank" class="game-button original">
-                <span class="button-icon">🎮</span>
+            </a>
+            
+            <a href="https://suyanrai-mhl.github.io/Suyan-Rai-Portfolio/game.html" 
+               target="_blank" 
+               style="
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                background: linear-gradient(to right, #ff7e5f, #feb47b);
+                border: none;
+                border-radius: 10px;
+                padding: 15px 25px;
+                font-size: 1.2rem;
+                font-weight: 600;
+                color: white;
+                cursor: pointer;
+                transition: all 0.3s ease;
+                box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+                text-decoration: none;
+            " onmouseover="this.style.transform='translateY(-3px)'; this.style.boxShadow='0 6px 12px rgba(0, 0, 0, 0.15)'" 
+            onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 8px rgba(0, 0, 0, 0.1)'">
+                <span style="margin-right: 10px; font-size: 1.3rem;">🎮</span>
                 Previous Game
             </a>
             
-            <a href="https://suyanrai-mhl.github.io/Suyan-Rai-Portfolio/updated-game.html" target="_blank" class="game-button updated">
-                <span class="button-icon">🎮</span>
+            <a href="https://suyanrai-mhl.github.io/Suyan-Rai-Portfolio/updated-game.html" 
+               target="_blank" 
+               style="
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                background: linear-gradient(to right, #00c6ff, #0072ff);
+                border: none;
+                border-radius: 10px;
+                padding: 15px 25px;
+                font-size: 1.2rem;
+                font-weight: 600;
+                color: white;
+                cursor: pointer;
+                transition: all 0.3s ease;
+                box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+                text-decoration: none;
+            " onmouseover="this.style.transform='translateY(-3px)'; this.style.boxShadow='0 6px 12px rgba(0, 0, 0, 0.15)'" 
+            onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 8px rgba(0, 0, 0, 0.1)'">
+                <span style="margin-right: 10px; font-size: 1.3rem;">🎮</span>
                 Updated Game
             </a>
             
-            <a href="https://chat.deepseek.com/share/7r3rq13a09nxf6kjph" target="_blank" class="game-button chat">
-                <span class="button-icon">🤖</span>
+            <a href="https://chat.deepseek.com/share/7r3rq13a09nxf6kjph" 
+               target="_blank" 
+               style="
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                background: linear-gradient(to right, #8e2de2, #4a00e0);
+                border: none;
+                border-radius: 10px;
+                padding: 15px 25px;
+                font-size: 1.2rem;
+                font-weight: 600;
+                color: white;
+                cursor: pointer;
+                transition: all 0.3s ease;
+                box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+                text-decoration: none;
+            " onmouseover="this.style.transform='translateY(-3px)'; this.style.boxShadow='0 6px 12px rgba(0, 0, 0, 0.15)'" 
+            onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 8px rgba(0, 0, 0, 0.1)'">
+                <span style="margin-right: 10px; font-size: 1.3rem;">🤖</span>
                 AI Chat Link
             </a>
         </div>
+        
+        <footer style="margin-top: 30px; color: #666; font-size: 0.9rem;">
+            <p>Click any button to open the corresponding link</p>
+        </footer>
+    </div>
+</body_link>
 </li>
   </content>
 
 </body>
 </html>
+
 
 
 
