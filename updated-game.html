@@ -1,864 +1,1136 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Guess the Number Game</title>
-<style>
-:root {
---primary: #4361ee;
---secondary: #3a0ca3;
---accent: #f72585;
---success: #4cc9f0;
---warning: #f8961e;
---light: #f8f9fa;
---dark: #212529;
---card-bg: rgba(255, 255, 255, 0.9);
---text: #333;
---shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
---transition: all 0.3s ease;
-}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Guess the Number — Unlock the Phone</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #2f80ed;
+            --accent: #fd79a8;
+            --bg1: #0f1724;
+            --card: #e9eefc;
+            --darkcard: #1b2630;
+            --glass: rgba(255, 255, 255, 0.08);
+            --rounded: 20px;
+            --shadow: 0 20px 40px rgba(2, 6, 23, 0.45);
+            --good: #00b894;
+            --bad: #e17055;
+            --muted: rgba(255, 255, 255, 0.7);
+        }
 
-.dark-mode {
---primary: #7209b7;
---secondary: #3a0ca3;
---accent: #f72585;
---success: #4cc9f0;
---warning: #f8961e;
---light: #121212;
---dark: #f8f9fa;
---card-bg: rgba(30, 30, 30, 0.9);
---text: #f8f9fa;
---shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
-}
+        html, body {
+            height: 100%;
+            margin: 0;
+            font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+        }
 
-* {
-margin: 0;
-padding: 0;
-box-sizing: border-box;
-font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-}
+        body {
+            background: linear-gradient(180deg, #071428 0%, #04263b 45%, #052c3f 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+            color: var(--muted);
+            overflow-x: hidden;
+        }
 
-body {
-background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-min-height: 100vh;
-display: flex;
-justify-content: center;
-align-items: center;
-padding: 20px;
-color: var(--text);
-transition: var(--transition);
-}
+        /* Floating stickers */
+        .sticker {
+            position: absolute;
+            font-size: 24px;
+            z-index: 0;
+            animation: float 6s ease-in-out infinite;
+            opacity: 0.7;
+        }
 
-.container {
-width: 100%;
-max-width: 500px;
-background: var(--card-bg);
-border-radius: 20px;
-box-shadow: var(--shadow);
-padding: 30px;
-position: relative;
-overflow: hidden;
-transition: var(--transition);
-}
+        .sticker-1 { top: 10%; left: 5%; animation-delay: 0s; }
+        .sticker-2 { top: 15%; right: 8%; animation-delay: 1s; }
+        .sticker-3 { bottom: 20%; left: 10%; animation-delay: 2s; }
+        .sticker-4 { bottom: 15%; right: 5%; animation-delay: 3s; }
+        .sticker-5 { top: 40%; left: 15%; animation-delay: 4s; }
+        .sticker-6 { top: 35%; right: 12%; animation-delay: 5s; }
 
-.theme-toggle {
-position: absolute;
-top: 20px;
-right: 20px;
-background: var(--primary);
-color: white;
-border: none;
-border-radius: 50%;
-width: 40px;
-height: 40px;
-cursor: pointer;
-display: flex;
-justify-content: center;
-align-items: center;
-font-size: 1.2rem;
-box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-transition: var(--transition);
-z-index: 10;
-}
+        @keyframes float {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            50% { transform: translateY(-20px) rotate(5deg); }
+        }
 
-.theme-toggle:hover {
-transform: scale(1.1);
-}
+        .container {
+            width: 100%;
+            max-width: 1000px;
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0.02));
+            border-radius: 24px;
+            padding: 28px;
+            box-shadow: var(--shadow);
+            display: flex;
+            gap: 28px;
+            flex-wrap: wrap;
+            position: relative;
+            z-index: 1;
+        }
 
-h1 {
-text-align: center;
-margin-bottom: 20px;
-color: var(--primary);
-font-size: 2.2rem;
-position: relative;
-}
+        /* Phone section with animations */
 
-h1::after {
-content: '';
-display: block;
-width: 80px;
-height: 4px;
-background: var(--accent);
-margin: 10px auto;
-border-radius: 2px;
-}
+        .phone-wrap {
+            width: 280px;
+            min-width: 240px;
+            background: #111;
+            border-radius: 40px;
+            padding: 12px;
+            position: relative;
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            animation: phoneGlow 4s ease-in-out infinite alternate;
+        }
 
-.game-info {
-display: flex;
-justify-content: space-between;
-margin-bottom: 20px;
-background: rgba(0, 0, 0, 0.05);
-padding: 10px 15px;
-border-radius: 10px;
-font-weight: 600;
-}
+        @keyframes phoneGlow {
+            0% { box-shadow: 0 12px 30px rgba(0, 0, 0, 0.5); }
+            100% { box-shadow: 0 12px 40px rgba(47, 128, 237, 0.3); }
+        }
 
-.difficulty-selector {
-display: flex;
-gap: 10px;
-margin-bottom: 20px;
-justify-content: center;
-}
+        .phone-notch {
+            width: 120px;
+            height: 35px;
+            background: #111;
+            border-radius: 0 0 16px 16px;
+            margin: 0 auto 8px;
+            opacity: 0.9;
+            position: relative;
+            z-index: 2;
+        }
 
-.difficulty-btn {
-padding: 8px 16px;
-border: none;
-border-radius: 50px;
-background: var(--light);
-color: var(--dark);
-font-weight: 600;
-cursor: pointer;
-transition: var(--transition);
-box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-}
+        .phone-screen {
+            background: linear-gradient(180deg, #6c5ce7, #a29bfe);
+            border-radius: 24px;
+            padding: 16px;
+            height: 600px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-between;
+            position: relative;
+            overflow: hidden;
+        }
 
-.difficulty-btn.active {
-background: var(--primary);
-color: white;
-}
+        /* Screen animation */
+        .phone-screen::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, transparent, rgba(255,255,255,0.1), transparent);
+            transform: rotate(45deg);
+            animation: screenShine 8s linear infinite;
+        }
 
-.difficulty-btn:hover {
-transform: translateY(-2px);
-}
+        @keyframes screenShine {
+            0% { transform: translateX(-100%) translateY(-100%) rotate(45deg); }
+            100% { transform: translateX(100%) translateY(100%) rotate(45deg); }
+        }
 
-.game-area {
-text-align: center;
-margin-bottom: 20px;
-}
+        .lock-row {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            margin-bottom: 8px;
+        }
 
-.input-area {
-display: flex;
-justify-content: center;
-margin-bottom: 20px;
-gap: 10px;
-}
+        .attempt-circles {
+            display: flex;
+            gap: 8px;
+        }
 
-#guessInput {
-width: 120px;
-padding: 12px;
-border: 2px solid var(--primary);
-border-radius: 10px;
-font-size: 1.2rem;
-text-align: center;
-background: var(--light);
-color: var(--dark);
-transition: var(--transition);
-}
+        .circle {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.5);
+            border: 2px solid rgba(255, 255, 255, 0.12);
+            transition: all 0.3s ease;
+        }
 
-#guessInput:focus {
-outline: none;
-border-color: var(--accent);
-box-shadow: 0 0 0 3px rgba(247, 37, 133, 0.2);
-}
+        .circle.used {
+            background: var(--bad);
+            border-color: rgba(0, 0, 0, 0.3);
+            animation: pulse 0.5s ease;
+        }
 
-#checkBtn {
-padding: 12px 20px;
-background: var(--primary);
-color: white;
-border: none;
-border-radius: 10px;
-font-size: 1rem;
-font-weight: 600;
-cursor: pointer;
-transition: var(--transition);
-box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-}
+        .circle.active {
+            background: var(--primary);
+            transform: scale(1.1);
+            animation: pulse 1.5s infinite;
+        }
 
-#checkBtn:hover {
-background: var(--secondary);
-transform: translateY(-2px);
-}
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+            100% { transform: scale(1); }
+        }
 
-#checkBtn:active {
-transform: translateY(0);
-}
+        .lock-icon {
+            font-size: 36px;
+            color: #fff;
+            margin: 6px 0;
+            animation: lockShake 3s ease-in-out infinite;
+        }
 
-.message-area {
-min-height: 80px;
-display: flex;
-flex-direction: column;
-align-items: center;
-justify-content: center;
-margin-bottom: 20px;
-transition: var(--transition);
-}
+        @keyframes lockShake {
+            0%, 100% { transform: rotate(0deg); }
+            25% { transform: rotate(-5deg); }
+            75% { transform: rotate(5deg); }
+        }
 
-#message {
-font-size: 1.3rem;
-font-weight: 600;
-margin-bottom: 10px;
-text-align: center;
-opacity: 0;
-transition: opacity 0.5s ease;
-}
+        .phone-message {
+            color: rgba(255, 255, 255, 0.95);
+            font-weight: 700;
+            text-align: center;
+            margin-bottom: 16px;
+            font-size: 14px;
+            line-height: 1.3;
+            animation: textGlow 2s ease-in-out infinite alternate;
+        }
 
-#message.show {
-opacity: 1;
-}
+        @keyframes textGlow {
+            0% { text-shadow: 0 0 5px rgba(255,255,255,0.5); }
+            100% { text-shadow: 0 0 15px rgba(255,255,255,0.8); }
+        }
 
-#hintIndicator {
-font-size: 1rem;
-margin-top: 5px;
-opacity: 0;
-transition: opacity 0.5s ease;
-}
+        .input-display {
+            font-size: 36px;
+            color: #fff;
+            letter-spacing: 10px;
+            background: rgba(255, 255, 255, 0.06);
+            padding: 10px 16px;
+            border-radius: 12px;
+            margin-bottom: 16px;
+            min-width: 80%;
+            text-align: center;
+            box-shadow: inset 0 4px 12px rgba(0, 0, 0, 0.2);
+            min-height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            animation: inputPulse 4s infinite;
+        }
 
-#hintIndicator.show {
-opacity: 1;
-}
+        @keyframes inputPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.02); }
+        }
 
-.keypad {
-display: grid;
-grid-template-columns: repeat(3, 1fr);
-gap: 10px;
-margin-bottom: 20px;
-}
+        /* Keypad with animations */
+        .keypad {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+            width: 90%;
+            margin-top: 10px;
+            margin-bottom: 10px;
+        }
 
-.key {
-padding: 15px;
-background: var(--light);
-border: none;
-border-radius: 10px;
-font-size: 1.2rem;
-font-weight: 600;
-cursor: pointer;
-transition: var(--transition);
-box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-color: var(--dark);
-}
+        .key {
+            background: rgba(255, 255, 255, 0.15);
+            border: none;
+            color: #fff;
+            padding: 12px;
+            border-radius: 50%;
+            font-weight: 700;
+            font-size: 16px;
+            cursor: pointer;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            aspect-ratio: 1/1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+            min-height: 45px;
+            position: relative;
+            overflow: hidden;
+        }
 
-.key:hover {
-background: var(--primary);
-color: white;
-transform: translateY(-2px);
-}
+        .key::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.5s;
+        }
 
-.key:active {
-transform: translateY(0);
-}
+        .key:hover::before {
+            left: 100%;
+        }
 
-.controls {
-display: flex;
-justify-content: center;
-gap: 10px;
-}
+        .key:hover {
+            transform: scale(1.05);
+            background: rgba(255, 255, 255, 0.2);
+        }
 
-.control-btn {
-padding: 10px 20px;
-border: none;
-border-radius: 10px;
-font-weight: 600;
-cursor: pointer;
-transition: var(--transition);
-}
+        .key:active {
+            transform: scale(0.95);
+            background: rgba(255, 255, 255, 0.25);
+        }
 
-#resetBtn {
-background: var(--warning);
-color: white;
-}
+        .key.special {
+            background: rgba(0, 0, 0, 0.3);
+            font-weight: 800;
+            font-size: 12px;
+        }
 
-#newGameBtn {
-background: var(--success);
-color: white;
-}
+        /* Check button - positioned in the keypad */
+        .check-key {
+            grid-column: 2 / 3;
+            background: linear-gradient(90deg, var(--primary), #7b61ff);
+            border-radius: 20px;
+            font-size: 14px;
+            margin-top: 5px;
+        }
 
-.leaderboard {
-background: rgba(0, 0, 0, 0.05);
-padding: 15px;
-border-radius: 10px;
-margin-top: 20px;
-}
+        /* Additional check button below keypad */
+        .check-button {
+            margin-top: 10px;
+            margin-bottom: 10px;
+            background: linear-gradient(90deg, var(--primary), #7b61ff);
+            border: none;
+            color: #fff;
+            padding: 14px 28px;
+            border-radius: 20px;
+            font-weight: 800;
+            cursor: pointer;
+            box-shadow: 0 8px 24px rgba(47, 128, 237, 0.2);
+            width: 90%;
+            transition: all 0.2s ease;
+            font-size: 16px;
+            position: relative;
+            overflow: hidden;
+        }
 
-.leaderboard h3 {
-text-align: center;
-margin-bottom: 10px;
-color: var(--primary);
-}
+        .check-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            transition: left 0.5s;
+        }
 
-.leaderboard-item {
-display: flex;
-justify-content: space-between;
-padding: 5px 0;
-border-bottom: 1px solid rgba(0, 0, 0, 0.1);
-}
+        .check-button:hover::before {
+            left: 100%;
+        }
 
-.decoration {
-position: absolute;
-pointer-events: none;
-z-index: 0;
-opacity: 0.1;
-}
+        .check-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 28px rgba(47, 128, 237, 0.3);
+        }
 
-.decoration-1 {
-top: -50px;
-right: -50px;
-font-size: 150px;
-}
+        .check-button:active {
+            transform: translateY(1px);
+            box-shadow: 0 4px 12px rgba(47, 128, 237, 0.2);
+        }
 
-.decoration-2 {
-bottom: -50px;
-left: -50px;
-font-size: 150px;
-transform: rotate(180deg);
-}
+        .hidden-picture {
+            display: none;
+            text-align: center;
+            margin-top: 16px;
+            animation: bounceIn 1s ease;
+        }
 
-.hot-cold-indicator {
-width: 100px;
-height: 100px;
-border-radius: 50%;
-margin: 0 auto 20px;
-display: flex;
-justify-content: center;
-align-items: center;
-font-size: 1.5rem;
-font-weight: bold;
-transition: var(--transition);
-background: radial-gradient(circle, #ff9a00, #ff0000);
-color: white;
-opacity: 0;
-transform: scale(0);
-}
+        @keyframes bounceIn {
+            0% { transform: scale(0.5); opacity: 0; }
+            70% { transform: scale(1.1); }
+            100% { transform: scale(1); opacity: 1; }
+        }
 
-.hot-cold-indicator.show {
-opacity: 1;
-transform: scale(1);
-}
+        .hidden-picture.revealed {
+            display: block;
+        }
 
-.hot-cold-indicator.cold {
-background: radial-gradient(circle, #00b4d8, #0077b6);
-}
+        .picture-icon {
+            font-size: 50px;
+            margin-bottom: 8px;
+            animation: celebration 2s infinite;
+        }
 
-@media (max-width: 500px) {
-.container {
-padding: 20px;
-}
+        @keyframes celebration {
+            0%, 100% { transform: scale(1) rotate(0deg); }
+            25% { transform: scale(1.2) rotate(10deg); }
+            50% { transform: scale(1.1) rotate(-10deg); }
+            75% { transform: scale(1.2) rotate(5deg); }
+        }
 
-h1 {
-font-size: 1.8rem;
-}
+        .picture-text {
+            font-size: 20px;
+            font-weight: bold;
+            color: #fff;
+            margin-bottom: 8px;
+            animation: colorChange 3s infinite alternate;
+        }
 
-.input-area {
-flex-direction: column;
-align-items: center;
-}
+        @keyframes colorChange {
+            0% { color: #fff; }
+            50% { color: #ffd166; }
+            100% { color: #fd79a8; }
+        }
 
-#guessInput {
-width: 100%;
-margin-bottom: 10px;
-}
+        /* Controls section with animations */
+        .controls {
+            flex: 1;
+            min-width: 320px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
 
-.keypad {
-gap: 5px;
-}
+        .game-info {
+            display: flex;
+            justify-content: space-between;
+            gap: 8px;
+            background: var(--glass);
+            padding: 12px;
+            border-radius: 12px;
+            animation: slideIn 1s ease;
+        }
 
-.key {
-padding: 12px;
-}
-}
+        @keyframes slideIn {
+            0% { transform: translateX(-20px); opacity: 0; }
+            100% { transform: translateX(0); opacity: 1; }
+        }
 
-.bounce {
-animation: bounce 0.5s;
-}
+        .difficulty {
+            display: flex;
+            gap: 10px;
+        }
 
-@keyframes bounce {
-0%, 20%, 60%, 100% {
-transform: translateY(0);
-}
-40% {
-transform: translateY(-10px);
-}
-80% {
-transform: translateY(-5px);
-}
-}
+        .difficulty button {
+            flex: 1;
+            padding: 10px;
+            border-radius: 999px;
+            border: none;
+            background: rgba(255, 255, 255, 0.08);
+            color: #fff;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
 
-.fade-in {
-animation: fadeIn 0.5s;
-}
+        .difficulty button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
 
-@keyframes fadeIn {
-from { opacity: 0; }
-to { opacity: 1; }
-}
+        .difficulty button.active {
+            background: var(--primary);
+            color: #fff;
+            box-shadow: 0 8px 18px rgba(47, 128, 237, 0.15);
+            animation: buttonPulse 2s infinite;
+        }
 
-.confetti {
-position: fixed;
-width: 10px;
-height: 10px;
-background: var(--accent);
-opacity: 0;
-z-index: 1000;
-animation: confetti-fall 5s linear forwards;
-}
+        @keyframes buttonPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
 
-@keyframes confetti-fall {
-0% {
-transform: translateY(-100px) rotate(0deg);
-opacity: 1;
-}
-100% {
-transform: translateY(100vh) rotate(360deg);
-opacity: 0;
-}
-}
-</style>
+        .message-area {
+            background: var(--glass);
+            padding: 18px;
+            border-radius: 14px;
+            min-height: 150px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: all 0.3s ease;
+        }
+
+        #message {
+            font-weight: 800;
+            color: #fff;
+            font-size: 18px;
+            opacity: 1;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .correct-message {
+            animation: correctAnimation 1s ease;
+        }
+
+        @keyframes correctAnimation {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.2); color: #00b894; }
+            100% { transform: scale(1); }
+        }
+
+        #hintIndicator {
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        /* Removed attempts-line and attempt-dot styles since they're no longer needed */
+
+        .controls-row {
+            display: flex;
+            gap: 12px;
+        }
+
+        .control-btn {
+            flex: 1;
+            padding: 12px;
+            border-radius: 12px;
+            border: none;
+            background: linear-gradient(90deg, #ffd166, #ffb86b);
+            font-weight: 800;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .control-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            transition: left 0.5s;
+        }
+
+        .control-btn:hover::before {
+            left: 100%;
+        }
+
+        .control-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(255, 184, 107, 0.3);
+        }
+
+        .hint-section {
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.03), rgba(255, 255, 255, 0.01));
+            padding: 12px;
+            border-radius: 12px;
+            animation: fadeIn 1.5s ease;
+        }
+
+        @keyframes fadeIn {
+            0% { opacity: 0; }
+            100% { opacity: 1; }
+        }
+
+        .hint-grid {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .hint-card {
+            flex: 1;
+            min-width: 130px;
+            background: rgba(0, 0, 0, 0.25);
+            padding: 12px;
+            border-radius: 10px;
+            color: #fff;
+            transition: all 0.3s ease;
+        }
+
+        .hint-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+        }
+
+        .hint-card h4 {
+            margin: 0 0 6px 0;
+            color: #ffd166;
+        }
+
+        .hint-value {
+            font-size: 20px;
+            font-weight: 800;
+            color: #fff;
+            transition: all 0.3s ease;
+        }
+
+        .hint-value.updated {
+            animation: valueUpdate 0.5s ease;
+        }
+
+        @keyframes valueUpdate {
+            0% { transform: scale(1); color: #fff; }
+            50% { transform: scale(1.2); color: #ffd166; }
+            100% { transform: scale(1); color: #fff; }
+        }
+
+        .leaderboard {
+            margin-top: 10px;
+            background: rgba(255, 255, 255, 0.02);
+            padding: 12px;
+            border-radius: 12px;
+        }
+
+        .leaderboard-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 6px 0;
+            color: #fff;
+            transition: all 0.3s ease;
+        }
+
+        .leaderboard-item:hover {
+            background: rgba(255,255,255,0.05);
+            padding-left: 10px;
+        }
+
+        @media (max-width: 880px) {
+            .container {
+                padding: 18px;
+            }
+            .phone-wrap {
+                width: 100%;
+                max-width: none;
+            }
+            .controls {
+                width: 100%;
+            }
+            .phone-screen {
+                height: auto;
+            }
+            .sticker {
+                display: none;
+            }
+        }
+    </style>
 </head>
 <body>
-<div class="container">
-<button class="theme-toggle" id="themeToggle">🌙</button>
-
-<div class="decoration decoration-1">🎯</div>
-<div class="decoration decoration-2">🎯</div>
-
-<h1>Guess the Number</h1>
-
-<div class="game-info">
-<div>Guesses: <span id="guessCount">0</span></div>
-<div>Best Score: <span id="bestScore">-</span></div>
-</div>
-
-<div class="difficulty-selector">
-<button class="difficulty-btn active" data-difficulty="easy">Easy (1-50)</button>
-<button class="difficulty-btn" data-difficulty="medium">Medium (1-100)</button>
-<button class="difficulty-btn" data-difficulty="hard">Hard (1-500)</button>
-</div>
-
-<div class="game-area">
-<div class="hot-cold-indicator" id="hotColdIndicator">HOT</div>
-
-<div class="input-area">
-<input type="number" id="guessInput" placeholder="Enter guess" min="1" max="100">
-<button id="checkBtn">Check</button>
-</div>
-
-<div class="message-area">
-<div id="message">Enter a number between 1 and 100</div>
-<div id="hintIndicator">You're getting warmer!</div>
-</div>
-
-<div class="keypad">
-<button class="key" data-value="1">1</button>
-<button class="key" data-value="2">2</button>
-<button class="key" data-value="3">3</button>
-<button class="key" data-value="4">4</button>
-<button class="key" data-value="5">5</button>
-<button class="key" data-value="6">6</button>
-<button class="key" data-value="7">7</button>
-<button class="key" data-value="8">8</button>
-<button class="key" data-value="9">9</button>
-<button class="key" id="clearBtn">C</button>
-<button class="key" data-value="0">0</button>
-<button class="key" id="backspaceBtn">⌫</button>
-</div>
-
-<div class="controls">
-<button class="control-btn" id="resetBtn">Reset Game</button>
-<button class="control-btn" id="newGameBtn">New Game</button>
-</div>
-</div>
-
-<div class="leaderboard">
-<h3>Best Scores</h3>
-<div class="leaderboard-item">
-<span>Easy:</span>
-<span id="easyBest">-</span>
-</div>
-<div class="leaderboard-item">
-<span>Medium:</span>
-<span id="mediumBest">-</span>
-</div>
-<div class="leaderboard-item">
-<span>Hard:</span>
-<span id="hardBest">-</span>
-</div>
-</div>
-</div>
-
-<audio id="correctSound" src="https://assets.mixkit.co/sfx/preview/mixkit-correct-answer-tone-2870.mp3" preload="auto"></audio>
-<audio id="wrongSound" src="https://assets.mixkit.co/sfx/preview/mixkit-wrong-answer-fail-notification-946.mp3" preload="auto"></audio>
-<audio id="highSound" src="https://assets.mixkit.co/sfx/preview/mixkit-arcade-game-jump-coin-216.mp3" preload="auto"></audio>
-<audio id="lowSound" src="https://assets.mixkit.co/sfx/preview/mixkit-retro-arcade-casino-notification-211.mp3" preload="auto"></audio>
-
-<script>
-// Game variables
-let targetNumber;
-let guessCount = 0;
-let maxNumber = 100;
-let currentDifficulty = 'medium';
-let gameActive = false;
-
-// DOM elements
-const guessInput = document.getElementById('guessInput');
-const checkBtn = document.getElementById('checkBtn');
-const message = document.getElementById('message');
-const hintIndicator = document.getElementById('hintIndicator');
-const guessCountDisplay = document.getElementById('guessCount');
-const bestScoreDisplay = document.getElementById('bestScore');
-const themeToggle = document.getElementById('themeToggle');
-const hotColdIndicator = document.getElementById('hotColdIndicator');
-
-// Sound elements
-const correctSound = document.getElementById('correctSound');
-const wrongSound = document.getElementById('wrongSound');
-const highSound = document.getElementById('highSound');
-const lowSound = document.getElementById('lowSound');
-
-// Initialize game
-function initGame() {
-// Load best scores from localStorage
-loadBestScores();
-
-// Set up event listeners
-setupEventListeners();
-
-// Start a new game
-newGame();
-}
-
-// Set up event listeners
-function setupEventListeners() {
-// Check guess when button is clicked
-checkBtn.addEventListener('click', checkGuess);
-
-// Check guess when Enter key is pressed
-guessInput.addEventListener('keypress', function(e) {
-if (e.key === 'Enter') {
-checkGuess();
-}
-});
-
-// Difficulty buttons
-document.querySelectorAll('.difficulty-btn').forEach(btn => {
-btn.addEventListener('click', function() {
-// Remove active class from all buttons
-document.querySelectorAll('.difficulty-btn').forEach(b => {
-b.classList.remove('active');
-});
-
-// Add active class to clicked button
-this.classList.add('active');
-
-// Set new difficulty
-currentDifficulty = this.getAttribute('data-difficulty');
-
-// Update max number based on difficulty
-switch(currentDifficulty) {
-case 'easy':
-maxNumber = 50;
-break;
-case 'medium':
-maxNumber = 100;
-break;
-case 'hard':
-maxNumber = 500;
-break;
-}
-
-// Start new game with new difficulty
-newGame();
-});
-});
-
-// Keypad buttons
-document.querySelectorAll('.key[data-value]').forEach(key => {
-key.addEventListener('click', function() {
-if (!gameActive) return;
-
-const value = this.getAttribute('data-value');
-guessInput.value += value;
-guessInput.focus();
-
-// Add bounce animation
-this.classList.add('bounce');
-setTimeout(() => {
-this.classList.remove('bounce');
-}, 500);
-});
-});
-
-// Clear button
-document.getElementById('clearBtn').addEventListener('click', function() {
-guessInput.value = '';
-guessInput.focus();
-
-// Add bounce animation
-this.classList.add('bounce');
-setTimeout(() => {
-this.classList.remove('bounce');
-}, 500);
-});
-
-// Backspace button
-document.getElementById('backspaceBtn').addEventListener('click', function() {
-guessInput.value = guessInput.value.slice(0, -1);
-guessInput.focus();
-
-// Add bounce animation
-this.classList.add('bounce');
-setTimeout(() => {
-this.classList.remove('bounce');
-}, 500);
-});
-
-// Reset game button
-document.getElementById('resetBtn').addEventListener('click', resetGame);
-
-// New game button
-document.getElementById('newGameBtn').addEventListener('click', newGame);
-
-// Theme toggle
-themeToggle.addEventListener('click', toggleTheme);
-}
-
-// Start a new game
-function newGame() {
-// Generate random target number
-targetNumber = Math.floor(Math.random() * maxNumber) + 1;
-
-// Reset guess count
-guessCount = 0;
-guessCountDisplay.textContent = guessCount;
-
-// Reset input and message
-guessInput.value = '';
-message.textContent = `Enter a number between 1 and ${maxNumber}`;
-hintIndicator.textContent = '';
-
-// Hide hot/cold indicator
-hotColdIndicator.classList.remove('show');
-
-// Enable game
-gameActive = true;
-guessInput.disabled = false;
-checkBtn.disabled = false;
-
-// Focus on input
-guessInput.focus();
-
-console.log(`Target number: ${targetNumber}`); // For debugging
-}
-
-// Reset current game
-function resetGame() {
-// Reset guess count
-guessCount = 0;
-guessCountDisplay.textContent = guessCount;
-
-// Reset input and message
-guessInput.value = '';
-message.textContent = `Enter a number between 1 and ${maxNumber}`;
-hintIndicator.textContent = '';
-
-// Hide hot/cold indicator
-hotColdIndicator.classList.remove('show');
-
-// Enable game
-gameActive = true;
-guessInput.disabled = false;
-checkBtn.disabled = false;
-
-// Focus on input
-guessInput.focus();
-}
-
-// Check the player's guess
-function checkGuess() {
-if (!gameActive) return;
-
-const guess = parseInt(guessInput.value);
-
-// Validate input
-if (isNaN(guess) || guess < 1 || guess > maxNumber) {
-message.textContent = `Please enter a valid number between 1 and ${maxNumber}`;
-message.classList.add('show');
-setTimeout(() => {
-message.classList.remove('show');
-}, 2000);
-return;
-}
-
-// Increment guess count
-guessCount++;
-guessCountDisplay.textContent = guessCount;
-
-// Add bounce animation to check button
-checkBtn.classList.add('bounce');
-setTimeout(() => {
-checkBtn.classList.remove('bounce');
-}, 500);
-
-// Check if guess is correct
-if (guess === targetNumber) {
-// Correct guess
-message.textContent = `🎉 Correct! The number was ${targetNumber}! 🎉`;
-message.classList.add('show');
-gameActive = false;
-guessInput.disabled = true;
-checkBtn.disabled = true;
-
-// Play correct sound
-correctSound.play();
-
-// Update best score if applicable
-updateBestScore();
-
-// Show celebration
-celebrate();
-
-// Hide hot/cold indicator
-hotColdIndicator.classList.remove('show');
-} else {
-// Incorrect guess - provide hint
-const difference = Math.abs(guess - targetNumber);
-let hintText = '';
-let soundToPlay = wrongSound;
-
-if (guess < targetNumber) {
-hintText = 'Too low! Try a higher number.';
-soundToPlay = lowSound;
-} else {
-hintText = 'Too high! Try a lower number.';
-soundToPlay = highSound;
-}
-
-message.textContent = hintText;
-message.classList.add('show');
-
-// Play appropriate sound
-soundToPlay.play();
-
-// Show hot/cold indicator
-showHotColdIndicator(difference);
-
-// Clear input for next guess
-guessInput.value = '';
-guessInput.focus();
-
-// Hide message after 2 seconds
-setTimeout(() => {
-message.classList.remove('show');
-}, 2000);
-}
-}
-
-// Show hot/cold indicator based on how close the guess is
-function showHotColdIndicator(difference) {
-const maxDifference = maxNumber;
-const percentage = (maxDifference - difference) / maxDifference;
-
-// Update indicator text and style
-if (percentage > 0.7) {
-hintIndicator.textContent = "Very Hot! You're very close!";
-hotColdIndicator.textContent = "HOT";
-hotColdIndicator.classList.remove('cold');
-} else if (percentage > 0.4) {
-hintIndicator.textContent = "Getting warmer!";
-hotColdIndicator.textContent = "WARM";
-hotColdIndicator.classList.remove('cold');
-} else if (percentage > 0.2) {
-hintIndicator.textContent = "A bit cold...";
-hotColdIndicator.textContent = "COOL";
-hotColdIndicator.classList.add('cold');
-} else {
-hintIndicator.textContent = "Very cold! Try a different approach.";
-hotColdIndicator.textContent = "COLD";
-hotColdIndicator.classList.add('cold');
-}
-
-// Show the indicator
-hintIndicator.classList.add('show');
-hotColdIndicator.classList.add('show');
-
-// Hide after 3 seconds
-setTimeout(() => {
-hintIndicator.classList.remove('show');
-hotColdIndicator.classList.remove('show');
-}, 3000);
-}
-
-// Update best score in localStorage
-function updateBestScore() {
-const currentBest = localStorage.getItem(`bestScore_${currentDifficulty}`);
-
-if (!currentBest || guessCount < parseInt(currentBest)) {
-localStorage.setItem(`bestScore_${currentDifficulty}`, guessCount.toString());
-loadBestScores();
-}
-}
-
-// Load best scores from localStorage
-function loadBestScores() {
-const easyBest = localStorage.getItem('bestScore_easy') || '-';
-const mediumBest = localStorage.getItem('bestScore_medium') || '-';
-const hardBest = localStorage.getItem('bestScore_hard') || '-';
-
-document.getElementById('easyBest').textContent = easyBest;
-document.getElementById('mediumBest').textContent = mediumBest;
-document.getElementById('hardBest').textContent = hardBest;
-
-// Update current best score display
-const currentBest = localStorage.getItem(`bestScore_${currentDifficulty}`) || '-';
-bestScoreDisplay.textContent = currentBest;
-}
-
-// Toggle between light and dark mode
-function toggleTheme() {
-document.body.classList.toggle('dark-mode');
-
-if (document.body.classList.contains('dark-mode')) {
-themeToggle.textContent = '☀️';
-} else {
-themeToggle.textContent = '🌙';
-}
-}
-
-// Celebration animation for correct guess
-function celebrate() {
-// Create confetti
-for (let i = 0; i < 100; i++) {
-const confetti = document.createElement('div');
-confetti.className = 'confetti';
-confetti.style.left = Math.random() * 100 + 'vw';
-confetti.style.backgroundColor = getRandomColor();
-confetti.style.animationDelay = Math.random() * 5 + 's';
-document.body.appendChild(confetti);
-
-// Remove confetti after animation
-setTimeout(() => {
-confetti.remove();
-}, 6000);
-}
-}
-
-// Helper function to get random color for confetti
-function getRandomColor() {
-const colors = ['#f72585', '#4361ee', '#4cc9f0', '#7209b7', '#3a0ca3', '#f8961e'];
-return colors[Math.floor(Math.random() * colors.length)];
-}
-
-// Initialize the game when the page loads
-window.addEventListener('DOMContentLoaded', initGame);
-</script>
-</body>
-</html>
+    <!-- Floating stickers -->
+    <div class="sticker sticker-1">🔒</div>
+    <div class="sticker sticker-2">📱</div>
+    <div class="sticker sticker-3">🎯</div>
+    <div class="sticker sticker-4">⭐</div>
+    <div class="sticker sticker-5">🔢</div>
+    <div class="sticker sticker-6">💡</div>
+
+    <div class="container" role="application" aria-label="Guess the Number Game">
+        <!-- Left phone -->
+        <div class="phone-wrap" aria-hidden="false">
+            <div class="phone-notch" aria-hidden="true"></div>
+            <div class="phone-screen" role="region" aria-label="Phone screen">
+                <div class="lock-row">
+                    <div class="attempt-circles" id="dotsRow" aria-hidden="true">
+                        <!-- circles will be rendered -->
+                    </div>
+                </div>
+                <div class="lock-icon">🔒</div>
+                <div class="phone-message">GUESS THE NUMBER TO UNLOCK THE PHONE</div>
+                <div class="input-display" id="inputDisplay" aria-live="polite">_ _ _</div>
+
+                <div class="keypad" role="group" aria-label="Keypad">
+                    <button class="key" data-value="1">1</button>
+                    <button class="key" data-value="2">2</button>
+                    <button class="key" data-value="3">3</button>
+                    <button class="key" data-value="4">4</button>
+                    <button class="key" data-value="5">5</button>
+                    <button class="key" data-value="6">6</button>
+                    <button class="key" data-value="7">7</button>
+                    <button class="key" data-value="8">8</button>
+                    <button class="key" data-value="9">9</button>
+                    <button class="key special" id="clearBtn">CLEAR</button>
+                    <button class="key" data-value="0">0</button>
+                    <button class="key special" id="backspaceBtn">⌫</button>
+                    <!-- Check button in keypad -->
+                    <button class="key check-key" id="checkKeypadBtn"><i class="fas fa-check"></i></button>
+                </div>
+
+                <button class="check-button" id="checkBtn"><i class="fas fa-check"></i> CHECK</button>
+
+                <div class="hidden-picture" id="hiddenPicture" aria-hidden="true">
+                    <div class="picture-content">
+                        <div class="picture-icon">🎉</div>
+                        <div class="picture-text">PHONE UNLOCKED!</div>
+                        <p>Congratulations! You guessed the number!</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right controls -->
+        <div class="controls" role="region" aria-label="Controls and hints">
+            <div class="game-info" role="status">
+                <div>Guesses: <strong><span id="guessCount">0</span></strong></div>
+                <div>Best Score: <strong><span id="bestScore">-</span></strong></div>
+            </div>
+
+            <div class="difficulty">
+                <button class="difficulty-btn active" data-difficulty="easy">Easy (1-50)</button>
+                <button class="difficulty-btn" data-difficulty="medium">Medium (1-100)</button>
+                <button class="difficulty-btn" data-difficulty="hard">Hard (1-500)</button>
+            </div>
+
+            <div class="message-area" aria-live="polite">
+                <div id="message">Enter a number between 1 and 100</div>
+                <div id="hintIndicator" style="color:rgba(255,255,255,0.85)"></div>
+            </div>
+
+            <!-- Removed attempts-line since we no longer need attempt tracking -->
+
+            <div class="controls-row">
+                <button class="control-btn" id="resetBtn"><i class="fas fa-redo"></i> Reset</button>
+                <button class="control-btn" id="newGameBtn"><i class="fas fa-plus"></i> New Game</button>
+            </div>
+
+            <div class="hint-section">
+                <h3 style="color:#ffd166;margin:0 0 8px 0">HINTS</h3>
+                <div class="hint-grid">
+                    <div class="hint-card">
+                        <h4>GREATER THAN</h4>
+                        <div class="hint-value" id="greaterThan">1</div>
+                    </div>
+                    <div class="hint-card">
+                        <h4>LESS THAN</h4>
+                        <div class="hint-value" id="lessThan">100</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="leaderboard" aria-hidden="false">
+                <h3 style="margin:0 0 8px 0;color:#ffd166">BEST SCORES</h3>
+                <div class="leaderboard-item"><span>Easy:</span><span id="easyBest">-</span></div>
+                <div class="leaderboard-item"><span>Medium:</span><span id="mediumBest">-</span></div>
+                <div class="leaderboard-item"><span>Hard:</span><span id="hardBest">-</span></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        (() => {
+            // Game state
+            let target = 0;
+            let currentInput = '';
+            let guessCount = 0;
+            let maxNumber = 100;
+            let difficulty = 'medium';
+            
+            // DOM elements
+            const dotsRow = document.getElementById('dotsRow');
+            const inputDisplay = document.getElementById('inputDisplay');
+            const messageEl = document.getElementById('message');
+            const hintIndicator = document.getElementById('hintIndicator');
+            const guessCountEl = document.getElementById('guessCount');
+            const greaterEl = document.getElementById('greaterThan');
+            const lessEl = document.getElementById('lessThan');
+            const hiddenPic = document.getElementById('hiddenPicture');
+            const bestScoreSpan = document.getElementById('bestScore');
+            
+            // Hint tracking
+            let minPossible = 1;
+            let maxPossible = 100;
+
+            // Audio setup
+            const AudioCtx = window.AudioContext || window.webkitAudioContext;
+            const audioCtx = new AudioCtx();
+
+            function playTone(freq = 440, duration = 0.18, type = 'sine', gain = 0.2) {
+                if (audioCtx.state === 'suspended') return;
+                
+                const o = audioCtx.createOscillator();
+                const g = audioCtx.createGain();
+                o.type = type;
+                o.frequency.setValueAtTime(freq, audioCtx.currentTime);
+                g.gain.setValueAtTime(gain, audioCtx.currentTime);
+                o.connect(g);
+                g.connect(audioCtx.destination);
+                o.start();
+                g.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + duration);
+                setTimeout(() => {
+                    try {
+                        o.stop();
+                    } catch (e) {}
+                }, duration * 1000 + 20);
+            }
+
+            function playSuccessJingle() {
+                const notes = [440, 554.37, 659.25];
+                let t = 0;
+                notes.forEach((n) => {
+                    setTimeout(() => playTone(n, 0.22, 'sine', 0.24), t * 1000);
+                    t += 0.25;
+                });
+                
+                setTimeout(() => {
+                    playTone(880, 0.5, 'triangle', 0.14);
+                    playTone(440, 0.5, 'sine', 0.12);
+                }, t * 1000 + 50);
+            }
+
+            function speak(text) {
+                if (!('speechSynthesis' in window)) return;
+                const u = new SpeechSynthesisUtterance(text);
+                u.rate = 0.95;
+                window.speechSynthesis.cancel();
+                window.speechSynthesis.speak(u);
+            }
+
+            // Helper functions
+            function randBetween(min, max) {
+                return Math.floor(Math.random() * (max - min + 1)) + min;
+            }
+
+            function updateInputDisplay() {
+                inputDisplay.textContent = currentInput || '_ _ _';
+            }
+
+            function saveBest(difficultyKey, value) {
+                localStorage.setItem('guess_best_' + difficultyKey, value);
+                renderBestScores();
+            }
+
+            function renderBestScores() {
+                ['easy', 'medium', 'hard'].forEach(level => {
+                    const val = localStorage.getItem('guess_best_' + level);
+                    const el = document.getElementById(level + 'Best');
+                    if (val) el.textContent = val;
+                    else el.textContent = '-';
+                });
+                
+                const mybest = localStorage.getItem('guess_best_' + difficulty);
+                bestScoreSpan.textContent = mybest ? mybest : '-';
+            }
+
+            // Animation helper
+            function animateValue(element, newValue) {
+                element.classList.add('updated');
+                element.textContent = newValue;
+                setTimeout(() => {
+                    element.classList.remove('updated');
+                }, 500);
+            }
+
+            // New game function
+            function newGame() {
+                try {
+                    if (audioCtx.state === 'suspended') audioCtx.resume();
+                } catch (e) {}
+                
+                guessCount = 0;
+                currentInput = '';
+                updateInputDisplay();
+                
+                // Set difficulty range
+                if (difficulty === 'easy') {
+                    maxNumber = 50;
+                } else if (difficulty === 'medium') {
+                    maxNumber = 100;
+                } else {
+                    maxNumber = 500;
+                }
+                
+                // Generate target number within the correct range
+                target = randBetween(1, maxNumber);
+                messageEl.textContent = `Pick a number between 1 and ${maxNumber}.`;
+                messageEl.classList.remove('correct-message');
+                hintIndicator.textContent = '';
+                
+                // Reset hint tracking
+                minPossible = 1;
+                maxPossible = maxNumber;
+                animateValue(greaterEl, minPossible);
+                animateValue(lessEl, maxPossible);
+                
+                hiddenPic.classList.remove('revealed');
+                guessCountEl.textContent = guessCount;
+                renderBestScores();
+                
+                console.log('Target (debug):', target, 'Difficulty:', difficulty);
+            }
+
+            // Check guess function
+            function checkGuess() {
+                if (!currentInput) {
+                    messageEl.textContent = 'Enter a number to check';
+                    speak('Please enter a number');
+                    playTone(220, 0.08, 'sine', 0.06);
+                    return;
+                }
+                
+                const guess = parseInt(currentInput, 10);
+                if (isNaN(guess) || guess < 1 || guess > maxNumber) {
+                    messageEl.textContent = `Enter a valid number 1–${maxNumber}`;
+                    speak('Invalid guess');
+                    playTone(180, 0.12, 'sine', 0.06);
+                    currentInput = '';
+                    updateInputDisplay();
+                    return;
+                }
+
+                guessCount++;
+                guessCountEl.textContent = guessCount;
+
+                // Correct guess
+                if (guess === target) {
+                    messageEl.textContent = '🎉 Correct! Phone unlocked!';
+                    messageEl.classList.add('correct-message');
+                    hiddenPic.classList.add('revealed');
+                    playSuccessJingle();
+                    speak('Congratulations! You guessed it correct!');
+                    
+                    const prev = parseInt(localStorage.getItem('guess_best_' + difficulty) || '999', 10);
+                    if (guessCount < prev) {
+                        saveBest(difficulty, guessCount);
+                    }
+                    
+                    currentInput = '';
+                    updateInputDisplay();
+                    return;
+                }
+
+                // Wrong guess
+                if (guess > target) {
+                    messageEl.textContent = `Too high — try a number less than ${guess}`;
+                    maxPossible = Math.min(maxPossible, guess - 1);
+                    animateValue(lessEl, maxPossible);
+                    playTone(220, 0.22, 'sine', 0.16);
+                    speak('Lower');
+                } else {
+                    messageEl.textContent = `Too low — try a number greater than ${guess}`;
+                    minPossible = Math.max(minPossible, guess + 1);
+                    animateValue(greaterEl, minPossible);
+                    playTone(880, 0.18, 'sine', 0.14);
+                    speak('Higher');
+                }
+
+                currentInput = '';
+                updateInputDisplay();
+            }
+
+            // Event listeners
+            document.querySelectorAll('.key').forEach(k => {
+                k.addEventListener('click', (e) => {
+                    const v = k.getAttribute('data-value');
+                    if (!v) return;
+                    
+                    const maxDigits = String(maxNumber).length;
+                    if (currentInput.length >= maxDigits) {
+                        playTone(180, 0.06, 'sine', 0.06);
+                        return;
+                    }
+                    
+                    currentInput += v;
+                    updateInputDisplay();
+                });
+            });
+
+            document.getElementById('backspaceBtn').addEventListener('click', () => {
+                currentInput = currentInput.slice(0, -1);
+                updateInputDisplay();
+            });
+
+            document.getElementById('clearBtn').addEventListener('click', () => {
+                currentInput = '';
+                updateInputDisplay();
+                playTone(180, 0.06, 'sine', 0.06);
+            });
+
+            // Both check buttons work the same
+            document.getElementById('checkBtn').addEventListener('click', () => {
+                checkGuess();
+            });
+
+            document.getElementById('checkKeypadBtn').addEventListener('click', () => {
+                checkGuess();
+            });
+
+            document.getElementById('resetBtn').addEventListener('click', () => {
+                newGame();
+            });
+
+            document.getElementById('newGameBtn').addEventListener('click', () => {
+                newGame();
+            });
+
+            // Difficulty buttons
+            document.querySelectorAll('.difficulty-btn').forEach(b => {
+                b.addEventListener('click', () => {
+                    document.querySelectorAll('.difficulty-btn').forEach(x => x.classList.remove('active'));
+                    b.classList.add('active');
+                    difficulty = b.dataset.difficulty;
+                    newGame();
+                });
+            });
+
+            // Keyboard support
+            document.addEventListener('keydown', (e) => {
+                if (e.key >= '0' && e.key <= '9') {
+                    const maxDigits = String(maxNumber).length;
+                    if (currentInput.length < maxDigits) {
+                        currentInput += e.key;
+                        updateInputDisplay();
+                        playTone(440 + (parseInt(e.key) * 20), 0.08, 'sine', 0.08);
+                    }
+                } else if (e.key === 'Backspace') {
+                    currentInput = currentInput.slice(0, -1);
+                    updateInputDisplay();
+                    playTone(180, 0.06, 'sine', 0.06);
+                } else if (e.key === 'Enter' || e.key === ' ') {
+                    checkGuess();
+                } else if (e.key === 'Escape') {
+                    currentInput = '';
+                    updateInputDisplay();
+                }
+            });
+
+            // Touch/click sound feedback
+            document.querySelectorAll('button').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    playTone(330, 0.05, 'sine', 0.04);
+                });
+            });
+
+            // Initialize the game
+            newGame();
+
+            // Resume audio context on first interaction
+            function initAudio() {
+                if (audioCtx.state === 'suspended') {
+                    audioCtx.resume();
+                }
+            }
+
+            document.addEventListener('click', initAudio, { once: true });
+            document.addEventListener('keydown', initAudio, { once: true });
+
+            // Accessibility improvements
+            document.querySelectorAll('.key').forEach(key => {
+                key.setAttribute('aria-label', `Number ${key.textContent}`);
+            });
+
+            document.getElementById('clearBtn').setAttribute('aria-label', 'Clear input');
+            document.getElementById('backspaceBtn').setAttribute('aria-label', 'Backspace');
+            document.getElementById('checkBtn').setAttribute('aria-label', 'Check guess');
+            document.getElementById('resetBtn').setAttribute('aria-label', 'Reset game');            // Add this function to create and update the attempt circles
+            function updateAttemptCircles() {
+                // Clear existing circles
+                dotsRow.innerHTML = '';
+                
+                // Create circles based on guess count (max 10 attempts shown)
+                const maxCircles = 10;
+                for (let i = 0; i < maxCircles; i++) {
+                    const circle = document.createElement('div');
+                    circle.className = 'circle';
+                    
+                    if (i < guessCount) {
+                        circle.classList.add('used');
+                    } else if (i === guessCount) {
+                        circle.classList.add('active');
+                    }
+                    
+                    dotsRow.appendChild(circle);
+                }
+            }
+
+            // Update the newGame function to initialize circles
+            function newGame() {
+                try {
+                    if (audioCtx.state === 'suspended') audioCtx.resume();
+                } catch (e) {}
+                
+                guessCount = 0;
+                currentInput = '';
+                updateInputDisplay();
+                
+                // Set difficulty range
+                if (difficulty === 'easy') {
+                    maxNumber = 50;
+                } else if (difficulty === 'medium') {
+                    maxNumber = 100;
+                } else {
+                    maxNumber = 500;
+                }
+                
+                // Generate target number within the correct range
+                target = randBetween(1, maxNumber);
+                messageEl.textContent = `Pick a number between 1 and ${maxNumber}.`;
+                messageEl.classList.remove('correct-message');
+                hintIndicator.textContent = '';
+                
+                // Reset hint tracking
+                minPossible = 1;
+                maxPossible = maxNumber;
+                animateValue(greaterEl, minPossible);
+                animateValue(lessEl, maxPossible);
+                
+                hiddenPic.classList.remove('revealed');
+                guessCountEl.textContent = guessCount;
+                updateAttemptCircles(); // Add this line
+                renderBestScores();
+                
+                console.log('Target (debug):', target, 'Difficulty:', difficulty);
+            }
+
+            // Update the checkGuess function to update circles after each guess
+            function checkGuess() {
+                if (!currentInput) {
+                    messageEl.textContent = 'Enter a number to check';
+                    speak('Please enter a number');
+                    playTone(220, 0.08, 'sine', 0.06);
+                    return;
+                }
+                
+                const guess = parseInt(currentInput, 10);
+                if (isNaN(guess) || guess < 1 || guess > maxNumber) {
+                    messageEl.textContent = `Enter a valid number 1–${maxNumber}`;
+                    speak('Invalid guess');
+                    playTone(180, 0.12, 'sine', 0.06);
+                    currentInput = '';
+                    updateInputDisplay();
+                    return;
+                }
+
+                guessCount++;
+                guessCountEl.textContent = guessCount;
+                updateAttemptCircles(); // Add this line
+
+                // Correct guess
+                if (guess === target) {
+                    messageEl.textContent = '🎉 Correct! Phone unlocked!';
+                    messageEl.classList.add('correct-message');
+                    hiddenPic.classList.add('revealed');
+                    playSuccessJingle();
+                    speak('Congratulations! You guessed it correct!');
+                    
+                    const prev = parseInt(localStorage.getItem('guess_best_' + difficulty) || '999', 10);
+                    if (guessCount < prev) {
+                        saveBest(difficulty, guessCount);
+                    }
+                    
+                    currentInput = '';
+                    updateInputDisplay();
+                    return;
+                }
+
+                // Wrong guess
+                if (guess > target) {
+                    messageEl.textContent = `Too high — try a number less than ${guess}`;
+                    maxPossible = Math.min(maxPossible, guess - 1);
+                    animateValue(lessEl, maxPossible);
+                    playTone(220, 0.22, 'sine', 0.16);
+                    speak('Lower');
+                } else {
+                    messageEl.textContent = `Too low — try a number greater than ${guess}`;
+                    minPossible = Math.max(minPossible, guess + 1);
+                    animateValue(greaterEl, minPossible);
+                    playTone(880, 0.18, 'sine', 0.14);
+                    speak('Higher');
+                }
+
+                currentInput = '';
+                updateInputDisplay();
+            }
