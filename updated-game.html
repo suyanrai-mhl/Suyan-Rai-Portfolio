@@ -475,7 +475,30 @@
             color: rgba(255, 255, 255, 0.9);
         }
 
-        /* Removed attempts-line and attempt-dot styles since they're no longer needed */
+        .attempts-line {
+            display: flex;
+            gap: 8px;
+            justify-content: center;
+        }
+
+        .attempt-dot {
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        .attempt-dot.used {
+            background: var(--bad);
+            animation: dotUsed 0.5s ease;
+        }
+
+        @keyframes dotUsed {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.5); }
+            100% { transform: scale(1); }
+        }
 
         .controls-row {
             display: flex;
@@ -665,7 +688,7 @@
         <!-- Right controls -->
         <div class="controls" role="region" aria-label="Controls and hints">
             <div class="game-info" role="status">
-                <div>Guesses: <strong><span id="guessCount">0</span></strong></div>
+                <div>Guesses: <strong><span id="guessCount">0</span></strong>/7</div>
                 <div>Best Score: <strong><span id="bestScore">-</span></strong></div>
             </div>
 
@@ -680,7 +703,7 @@
                 <div id="hintIndicator" style="color:rgba(255,255,255,0.85)"></div>
             </div>
 
-            <!-- Removed attempts-line since we no longer need attempt tracking -->
+            <div class="attempts-line" id="attemptDots" aria-hidden="true"></div>
 
             <div class="controls-row">
                 <button class="control-btn" id="resetBtn"><i class="fas fa-redo"></i> Reset</button>
@@ -716,6 +739,7 @@
             let target = 0;
             let currentInput = '';
             let guessCount = 0;
+            const maxAttempts = 7;
             let maxNumber = 100;
             let difficulty = 'medium';
             
@@ -728,6 +752,7 @@
             const greaterEl = document.getElementById('greaterThan');
             const lessEl = document.getElementById('lessThan');
             const hiddenPic = document.getElementById('hiddenPicture');
+            const attemptDots = document.getElementById('attemptDots');
             const bestScoreSpan = document.getElementById('bestScore');
             
             // Hint tracking
@@ -805,6 +830,16 @@
                 bestScoreSpan.textContent = mybest ? mybest : '-';
             }
 
+            function renderAttemptDots() {
+                attemptDots.innerHTML = '';
+                for (let i = 0; i < maxAttempts; i++) {
+                    const d = document.createElement('div');
+                    d.className = 'attempt-dot';
+                    if (i < guessCount) d.classList.add('used');
+                    attemptDots.appendChild(d);
+                }
+            }
+
             // Animation helper
             function animateValue(element, newValue) {
                 element.classList.add('updated');
@@ -835,7 +870,7 @@
                 
                 // Generate target number within the correct range
                 target = randBetween(1, maxNumber);
-                messageEl.textContent = `Pick a number between 1 and ${maxNumber}.`;
+                messageEl.textContent = `Pick a number between 1 and ${maxNumber}. You have ${maxAttempts} chances.`;
                 messageEl.classList.remove('correct-message');
                 hintIndicator.textContent = '';
                 
@@ -847,9 +882,22 @@
                 
                 hiddenPic.classList.remove('revealed');
                 guessCountEl.textContent = guessCount;
+                renderAttemptDots();
+                renderDotsRow();
                 renderBestScores();
                 
                 console.log('Target (debug):', target, 'Difficulty:', difficulty);
+            }
+
+            function renderDotsRow() {
+                dotsRow.innerHTML = '';
+                for (let i = 0; i < maxAttempts; i++) {
+                    const c = document.createElement('div');
+                    c.className = 'circle';
+                    if (i < guessCount) c.classList.add('used');
+                    else if (i === guessCount) c.classList.add('active');
+                    dotsRow.appendChild(c);
+                }
             }
 
             // Check guess function
@@ -873,6 +921,8 @@
 
                 guessCount++;
                 guessCountEl.textContent = guessCount;
+                renderDotsRow();
+                renderAttemptDots();
 
                 // Correct guess
                 if (guess === target) {
@@ -905,6 +955,15 @@
                     animateValue(greaterEl, minPossible);
                     playTone(880, 0.18, 'sine', 0.14);
                     speak('Higher');
+                }
+
+                // Game over
+                if (guessCount >= maxAttempts) {
+                    if (guess !== target) {
+                        messageEl.textContent = `❌ Out of tries! The number was ${target}`;
+                        speak(`Game over. The number was ${target}`);
+                        playTone(120, 0.45, 'sine', 0.12);
+                    }
                 }
 
                 currentInput = '';
@@ -961,7 +1020,7 @@
                 b.addEventListener('click', () => {
                     document.querySelectorAll('.difficulty-btn').forEach(x => x.classList.remove('active'));
                     b.classList.add('active');
-                    difficulty = b.dataset.difficulty;
+                                        difficulty = b.dataset.difficulty;
                     newGame();
                 });
             });
@@ -1015,122 +1074,16 @@
             document.getElementById('clearBtn').setAttribute('aria-label', 'Clear input');
             document.getElementById('backspaceBtn').setAttribute('aria-label', 'Backspace');
             document.getElementById('checkBtn').setAttribute('aria-label', 'Check guess');
-            document.getElementById('resetBtn').setAttribute('aria-label', 'Reset game');            // Add this function to create and update the attempt circles
-            function updateAttemptCircles() {
-                // Clear existing circles
-                dotsRow.innerHTML = '';
-                
-                // Create circles based on guess count (max 10 attempts shown)
-                const maxCircles = 10;
-                for (let i = 0; i < maxCircles; i++) {
-                    const circle = document.createElement('div');
-                    circle.className = 'circle';
-                    
-                    if (i < guessCount) {
-                        circle.classList.add('used');
-                    } else if (i === guessCount) {
-                        circle.classList.add('active');
-                    }
-                    
-                    dotsRow.appendChild(circle);
-                }
+            document.getElementById('resetBtn').setAttribute('aria-label', 'Reset game');
+            document.getElementById('newGameBtn').setAttribute('aria-label', 'New game');
+
+            // Screen reader announcements
+            function announce(message) {
+                const announcer = document.getElementById('message');
+                announcer.setAttribute('aria-live', 'polite');
+                announcer.textContent = message;
             }
-
-            // Update the newGame function to initialize circles
-            function newGame() {
-                try {
-                    if (audioCtx.state === 'suspended') audioCtx.resume();
-                } catch (e) {}
-                
-                guessCount = 0;
-                currentInput = '';
-                updateInputDisplay();
-                
-                // Set difficulty range
-                if (difficulty === 'easy') {
-                    maxNumber = 50;
-                } else if (difficulty === 'medium') {
-                    maxNumber = 100;
-                } else {
-                    maxNumber = 500;
-                }
-                
-                // Generate target number within the correct range
-                target = randBetween(1, maxNumber);
-                messageEl.textContent = `Pick a number between 1 and ${maxNumber}.`;
-                messageEl.classList.remove('correct-message');
-                hintIndicator.textContent = '';
-                
-                // Reset hint tracking
-                minPossible = 1;
-                maxPossible = maxNumber;
-                animateValue(greaterEl, minPossible);
-                animateValue(lessEl, maxPossible);
-                
-                hiddenPic.classList.remove('revealed');
-                guessCountEl.textContent = guessCount;
-                updateAttemptCircles(); // Add this line
-                renderBestScores();
-                
-                console.log('Target (debug):', target, 'Difficulty:', difficulty);
-            }
-
-            // Update the checkGuess function to update circles after each guess
-            function checkGuess() {
-                if (!currentInput) {
-                    messageEl.textContent = 'Enter a number to check';
-                    speak('Please enter a number');
-                    playTone(220, 0.08, 'sine', 0.06);
-                    return;
-                }
-                
-                const guess = parseInt(currentInput, 10);
-                if (isNaN(guess) || guess < 1 || guess > maxNumber) {
-                    messageEl.textContent = `Enter a valid number 1–${maxNumber}`;
-                    speak('Invalid guess');
-                    playTone(180, 0.12, 'sine', 0.06);
-                    currentInput = '';
-                    updateInputDisplay();
-                    return;
-                }
-
-                guessCount++;
-                guessCountEl.textContent = guessCount;
-                updateAttemptCircles(); // Add this line
-
-                // Correct guess
-                if (guess === target) {
-                    messageEl.textContent = '🎉 Correct! Phone unlocked!';
-                    messageEl.classList.add('correct-message');
-                    hiddenPic.classList.add('revealed');
-                    playSuccessJingle();
-                    speak('Congratulations! You guessed it correct!');
-                    
-                    const prev = parseInt(localStorage.getItem('guess_best_' + difficulty) || '999', 10);
-                    if (guessCount < prev) {
-                        saveBest(difficulty, guessCount);
-                    }
-                    
-                    currentInput = '';
-                    updateInputDisplay();
-                    return;
-                }
-
-                // Wrong guess
-                if (guess > target) {
-                    messageEl.textContent = `Too high — try a number less than ${guess}`;
-                    maxPossible = Math.min(maxPossible, guess - 1);
-                    animateValue(lessEl, maxPossible);
-                    playTone(220, 0.22, 'sine', 0.16);
-                    speak('Lower');
-                } else {
-                    messageEl.textContent = `Too low — try a number greater than ${guess}`;
-                    minPossible = Math.max(minPossible, guess + 1);
-                    animateValue(greaterEl, minPossible);
-                    playTone(880, 0.18, 'sine', 0.14);
-                    speak('Higher');
-                }
-
-                currentInput = '';
-                updateInputDisplay();
-            }
+        })();
+    </script>
+</body>
+</html>
