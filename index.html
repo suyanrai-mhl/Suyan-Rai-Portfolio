@@ -117,6 +117,62 @@
       color: #666666;
     }
 
+    /* Button Section Styles */
+    .button-section {
+      background-color: #f9f9f9;
+      border-radius: 10px;
+      padding: 40px;
+      margin-top: 40px;
+    }
+    
+    .button-container {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+      max-width: 500px;
+      margin: 0 auto;
+    }
+    
+    .portfolio-button {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background-color: #001f3f;
+      color: white;
+      padding: 15px 25px;
+      border-radius: 8px;
+      font-weight: 600;
+      transition: all 0.3s ease;
+      text-align: center;
+    }
+    
+    .portfolio-button:hover {
+      background-color: #ff6600;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+    
+    .button-icon {
+      margin-right: 10px;
+      font-size: 1.2em;
+    }
+    
+    .docs-button {
+      background-color: #28a745;
+    }
+    
+    .previous-button {
+      background-color: #007bff;
+    }
+    
+    .updated-button {
+      background-color: #6f42c1;
+    }
+    
+    .chat-button {
+      background-color: #17a2b8;
+    }
+
     /* Responsive */
     @media(max-width: 600px) {
       header h1 {
@@ -125,16 +181,13 @@
       section {
         padding: 40px 15px;
       }
-      /* body_link {
-            margin: 0;
-            padding: 0;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d);
-            min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }   */
+      .button-container {
+        gap: 12px;
+      }
+      .portfolio-button {
+        padding: 12px 20px;
+        font-size: 0.95em;
+      }
     }
   </style>
 </head>
@@ -159,7 +212,7 @@
   <!-- About Section -->
   <section id="about">
     <h2>About Me</h2>
-    <p>I’m Suyan Rai, an international student at Dong-a University, majoring in International Business Management (IBM). Outside of academics, I enjoy listening to music, surfing the internet, and simple activities like cleaning to refresh my mind. At this stage of my journey, I’m deeply focused on personal growth and my studies, with the goal of building a strong foundation for my future career.</p>
+    <p>I'm Suyan Rai, an international student at Dong-a University, majoring in International Business Management (IBM). Outside of academics, I enjoy listening to music, surfing the internet, and simple activities like cleaning to refresh my mind. At this stage of my journey, I'm deeply focused on personal growth and my studies, with the goal of building a strong foundation for my future career.</p>
     <p>Education:</p>
     <ul>
       <li>Secondary education (Grade 10) at Brain Land Academy Higher Secondary School, Nepal, 2021</li>
@@ -171,7 +224,7 @@
   <!-- Work Experience Section -->
   <section id="experience">
     <h2>Work Experience</h2>
-    <p>I have gained valuable experience through part-time and volunteer roles. I worked as a sales assistant at my sister’s clothing store, developing customer service and communication skills. Alongside this, I spent a year tutoring elementary and lower secondary students, strengthening my teaching and mentoring abilities. I have also actively participated in community service, volunteering at temples and serving as a member of the Red Cross Society Club during my college years.</p>
+    <p>I have gained valuable experience through part-time and volunteer roles. I worked as a sales assistant at my sister's clothing store, developing customer service and communication skills. Alongside this, I spent a year tutoring elementary and lower secondary students, strengthening my teaching and mentoring abilities. I have also actively participated in community service, volunteering at temples and serving as a member of the Red Cross Society Club during my college years.</p>
   </section>
 
   <!-- Skills Section -->
@@ -184,6 +237,36 @@
   <section id="projects">
     <h2>Projects</h2>
     <p>I have actively engaged in several academic projects, particularly in biology, where I explored various aspects of plant life. In addition, I have created numerous mini projects during my school years, which helped me develop hands-on experience, creativity, and a strong problem-solving mindset.</p>
+    
+    <!-- Button Section -->
+    <div class="button-section">
+      <h2 style="color: #001f3f; margin-bottom: 30px;">My Links</h2>
+      <div class="button-container">
+        <a href="https://docs.google.com/document/d/1wJk6K1Wd87CjyNxCKHWDEf2gbxWCeWoM/edit?usp=drivesdk&ouid=108327592760081282446&rtpof=true&sd=true" 
+           target="_blank" class="portfolio-button docs-button">
+          <span class="button-icon">📄</span>
+          My Docs Link
+        </a>
+        
+        <a href="https://suyanrai-mhl.github.io/Suyan-Rai-Portfolio/game.html" 
+           target="_blank" class="portfolio-button previous-button">
+          <span class="button-icon">🎮</span>
+          Previous Game
+        </a>
+        
+        <a href="https://suyanrai-mhl.github.io/Suyan-Rai-Portfolio/updated-game.html" 
+           target="_blank" class="portfolio-button updated-button">
+          <span class="button-icon">🔄</span>
+          Updated Game
+        </a>
+        
+        <a href="https://chat.deepseek.com/share/7r3rq13a09nxf6kjph" 
+           target="_blank" class="portfolio-button chat-button">
+          <span class="button-icon">🤖</span>
+          Chat with AI Link
+        </a>
+      </div>
+    </div>
   </section>
 
   <!-- Contact Section -->
@@ -203,36 +286,5 @@
   <footer>
     &copy; 2025 Suyan Rai. All rights reserved.
   </footer>
-  
-   <section>
-     <div>
-     <li>
-       <a>My docs Link</a>
-     </li>
-       <li>
-       <a>Previous Game</a>
-     </li>
-       <li>
-       <a>Updated Game</a>
-     </li>
-       <li>
-       <a>Chat with AI Link</a>
-     </li>
-   </div>
-   </section>
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
