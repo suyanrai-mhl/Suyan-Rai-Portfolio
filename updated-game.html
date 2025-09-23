@@ -3,1087 +3,780 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Guess the Number — Unlock the Phone</title>
+    <title>Guess the Number Game</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root {
-            --primary: #2f80ed;
-            --accent: #fd79a8;
-            --bg1: #0f1724;
-            --card: #e9eefc;
-            --darkcard: #1b2630;
-            --glass: rgba(255, 255, 255, 0.08);
-            --rounded: 20px;
-            --shadow: 0 20px 40px rgba(2, 6, 23, 0.45);
-            --good: #00b894;
-            --bad: #e17055;
-            --muted: rgba(255, 255, 255, 0.7);
+            --primary: #4361ee;
+            --secondary: #3a0ca3;
+            --accent: #f72585;
+            --light: #f8f9fa;
+            --dark: #212529;
+            --success: #4cc9f0;
+            --warning: #f8961e;
+            --danger: #e63946;
+            --card-bg: rgba(255, 255, 255, 0.9);
+            --shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            --transition: all 0.3s ease;
         }
 
-        html, body {
-            height: 100%;
+        .dark-mode {
+            --primary: #4895ef;
+            --secondary: #560bad;
+            --accent: #f72585;
+            --light: #121212;
+            --dark: #f8f9fa;
+            --success: #4cc9f0;
+            --warning: #f8961e;
+            --danger: #e63946;
+            --card-bg: rgba(30, 30, 30, 0.9);
+            --shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        * {
             margin: 0;
-            font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
 
         body {
-            background: linear-gradient(180deg, #071428 0%, #04263b 45%, #052c3f 100%);
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
             display: flex;
-            align-items: center;
             justify-content: center;
-            padding: 24px;
-            color: var(--muted);
-            overflow-x: hidden;
-        }
-
-        /* Floating stickers */
-        .sticker {
-            position: absolute;
-            font-size: 24px;
-            z-index: 0;
-            animation: float 6s ease-in-out infinite;
-            opacity: 0.7;
-        }
-
-        .sticker-1 { top: 10%; left: 5%; animation-delay: 0s; }
-        .sticker-2 { top: 15%; right: 8%; animation-delay: 1s; }
-        .sticker-3 { bottom: 20%; left: 10%; animation-delay: 2s; }
-        .sticker-4 { bottom: 15%; right: 5%; animation-delay: 3s; }
-        .sticker-5 { top: 40%; left: 15%; animation-delay: 4s; }
-        .sticker-6 { top: 35%; right: 12%; animation-delay: 5s; }
-
-        @keyframes float {
-            0%, 100% { transform: translateY(0) rotate(0deg); }
-            50% { transform: translateY(-20px) rotate(5deg); }
+            align-items: center;
+            padding: 20px;
+            transition: var(--transition);
         }
 
         .container {
             width: 100%;
-            max-width: 1000px;
-            background: linear-gradient(180deg, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0.02));
-            border-radius: 24px;
-            padding: 28px;
+            max-width: 500px;
+            background: var(--card-bg);
+            border-radius: 20px;
             box-shadow: var(--shadow);
-            display: flex;
-            gap: 28px;
-            flex-wrap: wrap;
-            position: relative;
-            z-index: 1;
-        }
-
-        /* Phone section with animations */
-
-        .phone-wrap {
-            width: 280px;
-            min-width: 240px;
-            background: #111;
-            border-radius: 40px;
-            padding: 12px;
-            position: relative;
-            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.5);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            animation: phoneGlow 4s ease-in-out infinite alternate;
-        }
-
-        @keyframes phoneGlow {
-            0% { box-shadow: 0 12px 30px rgba(0, 0, 0, 0.5); }
-            100% { box-shadow: 0 12px 40px rgba(47, 128, 237, 0.3); }
-        }
-
-        .phone-notch {
-            width: 120px;
-            height: 35px;
-            background: #111;
-            border-radius: 0 0 16px 16px;
-            margin: 0 auto 8px;
-            opacity: 0.9;
-            position: relative;
-            z-index: 2;
-        }
-
-        .phone-screen {
-            background: linear-gradient(180deg, #6c5ce7, #a29bfe);
-            border-radius: 24px;
-            padding: 16px;
-            height: 600px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: space-between;
-            position: relative;
             overflow: hidden;
+            transition: var(--transition);
+            position: relative;
         }
 
-        /* Screen animation */
-        .phone-screen::before {
-            content: '';
-            position: absolute;
-            top: -50%;
-            left: -50%;
-            width: 200%;
-            height: 200%;
-            background: linear-gradient(45deg, transparent, rgba(255,255,255,0.1), transparent);
-            transform: rotate(45deg);
-            animation: screenShine 8s linear infinite;
-        }
-
-        @keyframes screenShine {
-            0% { transform: translateX(-100%) translateY(-100%) rotate(45deg); }
-            100% { transform: translateX(100%) translateY(100%) rotate(45deg); }
-        }
-
-        .lock-row {
-            display: flex;
-            gap: 8px;
-            align-items: center;
-            margin-bottom: 8px;
-        }
-
-        .attempt-circles {
-            display: flex;
-            gap: 8px;
-        }
-
-        .circle {
-            width: 12px;
-            height: 12px;
-            border-radius: 50%;
-            background: rgba(255, 255, 255, 0.5);
-            border: 2px solid rgba(255, 255, 255, 0.12);
-            transition: all 0.3s ease;
-        }
-
-        .circle.used {
-            background: var(--bad);
-            border-color: rgba(0, 0, 0, 0.3);
-            animation: pulse 0.5s ease;
-        }
-
-        .circle.active {
+        .header {
             background: var(--primary);
-            transform: scale(1.1);
-            animation: pulse 1.5s infinite;
-        }
-
-        @keyframes pulse {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.2); }
-            100% { transform: scale(1); }
-        }
-
-        .lock-icon {
-            font-size: 36px;
-            color: #fff;
-            margin: 6px 0;
-            animation: lockShake 3s ease-in-out infinite;
-        }
-
-        @keyframes lockShake {
-            0%, 100% { transform: rotate(0deg); }
-            25% { transform: rotate(-5deg); }
-            75% { transform: rotate(5deg); }
-        }
-
-        .phone-message {
-            color: rgba(255, 255, 255, 0.95);
-            font-weight: 700;
+            color: white;
+            padding: 20px;
             text-align: center;
-            margin-bottom: 16px;
-            font-size: 14px;
-            line-height: 1.3;
-            animation: textGlow 2s ease-in-out infinite alternate;
-        }
-
-        @keyframes textGlow {
-            0% { text-shadow: 0 0 5px rgba(255,255,255,0.5); }
-            100% { text-shadow: 0 0 15px rgba(255,255,255,0.8); }
-        }
-
-        .input-display {
-            font-size: 36px;
-            color: #fff;
-            letter-spacing: 10px;
-            background: rgba(255, 255, 255, 0.06);
-            padding: 10px 16px;
-            border-radius: 12px;
-            margin-bottom: 16px;
-            min-width: 80%;
-            text-align: center;
-            box-shadow: inset 0 4px 12px rgba(0, 0, 0, 0.2);
-            min-height: 60px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.3s ease;
-            animation: inputPulse 4s infinite;
-        }
-
-        @keyframes inputPulse {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.02); }
-        }
-
-        /* Keypad with animations */
-        .keypad {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 8px;
-            width: 90%;
-            margin-top: 10px;
-            margin-bottom: 10px;
-        }
-
-        .key {
-            background: rgba(255, 255, 255, 0.15);
-            border: none;
-            color: #fff;
-            padding: 12px;
-            border-radius: 50%;
-            font-weight: 700;
-            font-size: 16px;
-            cursor: pointer;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-            aspect-ratio: 1/1;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.2s ease;
-            min-height: 45px;
             position: relative;
             overflow: hidden;
         }
 
-        .key::before {
-            content: '';
+        .header h1 {
+            font-size: 2rem;
+            margin-bottom: 5px;
+            text-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+
+        .header p {
+            font-size: 1rem;
+            opacity: 0.9;
+        }
+
+        .theme-toggle {
             position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
-            transition: left 0.5s;
-        }
-
-        .key:hover::before {
-            left: 100%;
-        }
-
-        .key:hover {
-            transform: scale(1.05);
+            top: 20px;
+            right: 20px;
             background: rgba(255, 255, 255, 0.2);
-        }
-
-        .key:active {
-            transform: scale(0.95);
-            background: rgba(255, 255, 255, 0.25);
-        }
-
-        .key.special {
-            background: rgba(0, 0, 0, 0.3);
-            font-weight: 800;
-            font-size: 12px;
-        }
-
-        /* Check button - positioned in the keypad */
-        .check-key {
-            grid-column: 2 / 3;
-            background: linear-gradient(90deg, var(--primary), #7b61ff);
-            border-radius: 20px;
-            font-size: 14px;
-            margin-top: 5px;
-        }
-
-        /* Additional check button below keypad */
-        .check-button {
-            margin-top: 10px;
-            margin-bottom: 10px;
-            background: linear-gradient(90deg, var(--primary), #7b61ff);
             border: none;
-            color: #fff;
-            padding: 14px 28px;
-            border-radius: 20px;
-            font-weight: 800;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            color: white;
             cursor: pointer;
-            box-shadow: 0 8px 24px rgba(47, 128, 237, 0.2);
-            width: 90%;
-            transition: all 0.2s ease;
-            font-size: 16px;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .check-button::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
-            transition: left 0.5s;
-        }
-
-        .check-button:hover::before {
-            left: 100%;
-        }
-
-        .check-button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 12px 28px rgba(47, 128, 237, 0.3);
-        }
-
-        .check-button:active {
-            transform: translateY(1px);
-            box-shadow: 0 4px 12px rgba(47, 128, 237, 0.2);
-        }
-
-        .hidden-picture {
-            display: none;
-            text-align: center;
-            margin-top: 16px;
-            animation: bounceIn 1s ease;
-        }
-
-        @keyframes bounceIn {
-            0% { transform: scale(0.5); opacity: 0; }
-            70% { transform: scale(1.1); }
-            100% { transform: scale(1); opacity: 1; }
-        }
-
-        .hidden-picture.revealed {
-            display: block;
-        }
-
-        .picture-icon {
-            font-size: 50px;
-            margin-bottom: 8px;
-            animation: celebration 2s infinite;
-        }
-
-        @keyframes celebration {
-            0%, 100% { transform: scale(1) rotate(0deg); }
-            25% { transform: scale(1.2) rotate(10deg); }
-            50% { transform: scale(1.1) rotate(-10deg); }
-            75% { transform: scale(1.2) rotate(5deg); }
-        }
-
-        .picture-text {
-            font-size: 20px;
-            font-weight: bold;
-            color: #fff;
-            margin-bottom: 8px;
-            animation: colorChange 3s infinite alternate;
-        }
-
-        @keyframes colorChange {
-            0% { color: #fff; }
-            50% { color: #ffd166; }
-            100% { color: #fd79a8; }
-        }
-
-        /* Controls section with animations */
-        .controls {
-            flex: 1;
-            min-width: 320px;
             display: flex;
-            flex-direction: column;
-            gap: 12px;
+            justify-content: center;
+            align-items: center;
+            transition: var(--transition);
+        }
+
+        .theme-toggle:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: rotate(30deg);
+        }
+
+        .game-area {
+            padding: 30px;
+        }
+
+        .difficulty-selector {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            gap: 10px;
+        }
+
+        .difficulty-btn {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 10px;
+            background: var(--light);
+            color: var(--dark);
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .difficulty-btn.active {
+            background: var(--primary);
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .difficulty-btn:hover:not(.active) {
+            background: #e9ecef;
+            transform: translateY(-2px);
         }
 
         .game-info {
             display: flex;
             justify-content: space-between;
-            gap: 8px;
-            background: var(--glass);
-            padding: 12px;
-            border-radius: 12px;
-            animation: slideIn 1s ease;
+            margin-bottom: 20px;
+            background: var(--light);
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
         }
 
-        @keyframes slideIn {
-            0% { transform: translateX(-20px); opacity: 0; }
-            100% { transform: translateX(0); opacity: 1; }
-        }
-
-        .difficulty {
-            display: flex;
-            gap: 10px;
-        }
-
-        .difficulty button {
-            flex: 1;
-            padding: 10px;
-            border-radius: 999px;
-            border: none;
-            background: rgba(255, 255, 255, 0.08);
-            color: #fff;
-            font-weight: 700;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .difficulty button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
-        }
-
-        .difficulty button.active {
-            background: var(--primary);
-            color: #fff;
-            box-shadow: 0 8px 18px rgba(47, 128, 237, 0.15);
-            animation: buttonPulse 2s infinite;
-        }
-
-        @keyframes buttonPulse {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.05); }
-        }
-
-        .message-area {
-            background: var(--glass);
-            padding: 18px;
-            border-radius: 14px;
-            min-height: 150px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            transition: all 0.3s ease;
-        }
-
-        #message {
-            font-weight: 800;
-            color: #fff;
-            font-size: 18px;
-            opacity: 1;
+        .info-item {
             text-align: center;
-            transition: all 0.3s ease;
         }
 
-        .correct-message {
-            animation: correctAnimation 1s ease;
+        .info-label {
+            font-size: 0.8rem;
+            color: #6c757d;
+            margin-bottom: 5px;
         }
 
-        @keyframes correctAnimation {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.2); color: #00b894; }
-            100% { transform: scale(1); }
+        .info-value {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--primary);
         }
 
-        #hintIndicator {
-            color: rgba(255, 255, 255, 0.9);
-        }
-
-        .attempts-line {
+        .guess-display {
+            background: var(--light);
+            border-radius: 15px;
+            padding: 15px;
+            margin-bottom: 20px;
+            text-align: center;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--dark);
+            min-height: 60px;
             display: flex;
-            gap: 8px;
             justify-content: center;
+            align-items: center;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            transition: var(--transition);
         }
 
-        .attempt-dot {
-            width: 14px;
-            height: 14px;
-            border-radius: 50%;
-            background: rgba(255, 255, 255, 0.3);
-            transition: all 0.3s ease;
-        }
-
-        .attempt-dot.used {
-            background: var(--bad);
-            animation: dotUsed 0.5s ease;
-        }
-
-        @keyframes dotUsed {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.5); }
-            100% { transform: scale(1); }
-        }
-
-        .controls-row {
-            display: flex;
-            gap: 12px;
-        }
-
-        .control-btn {
-            flex: 1;
-            padding: 12px;
-            border-radius: 12px;
-            border: none;
-            background: linear-gradient(90deg, #ffd166, #ffb86b);
-            font-weight: 800;
-            cursor: pointer;
-            transition: all 0.3s ease;
+        .hot-cold-indicator {
+            height: 10px;
+            background: linear-gradient(to right, blue, green, yellow, red);
+            border-radius: 5px;
+            margin-bottom: 20px;
             position: relative;
             overflow: hidden;
         }
 
-        .control-btn::before {
-            content: '';
+        .indicator-marker {
             position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
-            transition: left 0.5s;
+            width: 20px;
+            height: 20px;
+            background: white;
+            border-radius: 50%;
+            top: -5px;
+            transform: translateX(-50%);
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+            transition: left 0.5s ease;
         }
 
-        .control-btn:hover::before {
-            left: 100%;
+        .virtual-keyboard {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-bottom: 20px;
         }
 
-        .control-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 20px rgba(255, 184, 107, 0.3);
-        }
-
-        .hint-section {
-            background: linear-gradient(180deg, rgba(255, 255, 255, 0.03), rgba(255, 255, 255, 0.01));
-            padding: 12px;
-            border-radius: 12px;
-            animation: fadeIn 1.5s ease;
-        }
-
-        @keyframes fadeIn {
-            0% { opacity: 0; }
-            100% { opacity: 1; }
-        }
-
-        .hint-grid {
-            display: flex;
-            gap: 12px;
-            flex-wrap: wrap;
-        }
-
-        .hint-card {
-            flex: 1;
-            min-width: 130px;
-            background: rgba(0, 0, 0, 0.25);
-            padding: 12px;
+        .key {
+            background: var(--light);
+            border: none;
             border-radius: 10px;
-            color: #fff;
-            transition: all 0.3s ease;
+            padding: 15px;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--dark);
+            cursor: pointer;
+            transition: var(--transition);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            display: flex;
+            justify-content: center;
+            align-items: center;
         }
 
-        .hint-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+        .key:hover {
+            background: #e9ecef;
+            transform: translateY(-2px);
         }
 
-        .hint-card h4 {
-            margin: 0 0 6px 0;
-            color: #ffd166;
+        .key:active {
+            transform: translateY(0);
         }
 
-        .hint-value {
-            font-size: 20px;
-            font-weight: 800;
-            color: #fff;
-            transition: all 0.3s ease;
+        .key.bounce {
+            animation: bounce 0.3s ease;
         }
 
-        .hint-value.updated {
-            animation: valueUpdate 0.5s ease;
+        .action-buttons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
         }
 
-        @keyframes valueUpdate {
-            0% { transform: scale(1); color: #fff; }
-            50% { transform: scale(1.2); color: #ffd166; }
-            100% { transform: scale(1); color: #fff; }
+        .action-btn {
+            padding: 15px;
+            border: none;
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .check-btn {
+            background: var(--primary);
+            color: white;
+        }
+
+        .clear-btn {
+            background: var(--light);
+            color: var(--dark);
+        }
+
+        .action-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .action-btn:active {
+            transform: translateY(0);
+        }
+
+        .message {
+            text-align: center;
+            padding: 15px;
+            margin-top: 20px;
+            border-radius: 10px;
+            font-weight: 600;
+            opacity: 0;
+            transition: var(--transition);
+            min-height: 60px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .message.show {
+            opacity: 1;
+        }
+
+        .message.correct {
+            background: rgba(76, 201, 240, 0.2);
+            color: var(--success);
+        }
+
+        .message.high {
+            background: rgba(248, 150, 30, 0.2);
+            color: var(--warning);
+        }
+
+        .message.low {
+            background: rgba(230, 57, 70, 0.2);
+            color: var(--danger);
         }
 
         .leaderboard {
-            margin-top: 10px;
-            background: rgba(255, 255, 255, 0.02);
-            padding: 12px;
-            border-radius: 12px;
+            background: var(--light);
+            border-radius: 10px;
+            padding: 15px;
+            margin-top: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        }
+
+        .leaderboard h3 {
+            text-align: center;
+            margin-bottom: 10px;
+            color: var(--primary);
         }
 
         .leaderboard-item {
             display: flex;
             justify-content: space-between;
-            padding: 6px 0;
-            color: #fff;
-            transition: all 0.3s ease;
+            padding: 8px 0;
+            border-bottom: 1px solid #dee2e6;
         }
 
-        .leaderboard-item:hover {
-            background: rgba(255,255,255,0.05);
-            padding-left: 10px;
+        .leaderboard-item:last-child {
+            border-bottom: none;
         }
 
-        @media (max-width: 880px) {
+        .decoration {
+            position: absolute;
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .confetti {
+            position: fixed;
+            width: 10px;
+            height: 10px;
+            background: var(--accent);
+            opacity: 0;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(0.9); }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes confettiFall {
+            0% { transform: translateY(-100px) rotate(0deg); opacity: 1; }
+            100% { transform: translateY(100vh) rotate(360deg); opacity: 0; }
+        }
+
+        @media (max-width: 480px) {
             .container {
-                padding: 18px;
+                border-radius: 15px;
             }
-            .phone-wrap {
-                width: 100%;
-                max-width: none;
+            
+            .header h1 {
+                font-size: 1.5rem;
             }
-            .controls {
-                width: 100%;
+            
+            .game-area {
+                padding: 20px;
             }
-            .phone-screen {
-                height: auto;
+            
+            .key {
+                padding: 12px;
+                font-size: 1.2rem;
             }
-            .sticker {
-                display: none;
+            
+            .action-btn {
+                padding: 12px;
             }
+        }
+
+        .sticker {
+            position: absolute;
+            font-size: 2rem;
+            opacity: 0.7;
+            z-index: 1;
         }
     </style>
 </head>
 <body>
-    <!-- Floating stickers -->
-    <div class="sticker sticker-1">🔒</div>
-    <div class="sticker sticker-2">📱</div>
-    <div class="sticker sticker-3">🎯</div>
-    <div class="sticker sticker-4">⭐</div>
-    <div class="sticker sticker-5">🔢</div>
-    <div class="sticker sticker-6">💡</div>
-
-    <div class="container" role="application" aria-label="Guess the Number Game">
-        <!-- Left phone -->
-        <div class="phone-wrap" aria-hidden="false">
-            <div class="phone-notch" aria-hidden="true"></div>
-            <div class="phone-screen" role="region" aria-label="Phone screen">
-                <div class="lock-row">
-                    <div class="attempt-circles" id="dotsRow" aria-hidden="true">
-                        <!-- circles will be rendered -->
-                    </div>
-                </div>
-                <div class="lock-icon">🔒</div>
-                <div class="phone-message">GUESS THE NUMBER TO UNLOCK THE PHONE</div>
-                <div class="input-display" id="inputDisplay" aria-live="polite">_ _ _</div>
-
-                <div class="keypad" role="group" aria-label="Keypad">
-                    <button class="key" data-value="1">1</button>
-                    <button class="key" data-value="2">2</button>
-                    <button class="key" data-value="3">3</button>
-                    <button class="key" data-value="4">4</button>
-                    <button class="key" data-value="5">5</button>
-                    <button class="key" data-value="6">6</button>
-                    <button class="key" data-value="7">7</button>
-                    <button class="key" data-value="8">8</button>
-                    <button class="key" data-value="9">9</button>
-                    <button class="key special" id="clearBtn">CLEAR</button>
-                    <button class="key" data-value="0">0</button>
-                    <button class="key special" id="backspaceBtn">⌫</button>
-                    <!-- Check button in keypad -->
-                    <button class="key check-key" id="checkKeypadBtn"><i class="fas fa-check"></i></button>
-                </div>
-
-                <button class="check-button" id="checkBtn"><i class="fas fa-check"></i> CHECK</button>
-
-                <div class="hidden-picture" id="hiddenPicture" aria-hidden="true">
-                    <div class="picture-content">
-                        <div class="picture-icon">🎉</div>
-                        <div class="picture-text">PHONE UNLOCKED!</div>
-                        <p>Congratulations! You guessed the number!</p>
-                    </div>
-                </div>
-            </div>
+    <div class="container">
+        <div class="header">
+            <button class="theme-toggle" id="themeToggle">
+                <i class="fas fa-moon"></i>
+            </button>
+            <h1>Guess the Number</h1>
+            <p>Unlock the phone by guessing the correct number!</p>
         </div>
-
-        <!-- Right controls -->
-        <div class="controls" role="region" aria-label="Controls and hints">
-            <div class="game-info" role="status">
-                <div>Guesses: <strong><span id="guessCount">0</span></strong>/7</div>
-                <div>Best Score: <strong><span id="bestScore">-</span></strong></div>
-            </div>
-
-            <div class="difficulty">
+        
+        <div class="game-area">
+            <div class="difficulty-selector">
                 <button class="difficulty-btn active" data-difficulty="easy">Easy (1-50)</button>
                 <button class="difficulty-btn" data-difficulty="medium">Medium (1-100)</button>
                 <button class="difficulty-btn" data-difficulty="hard">Hard (1-500)</button>
             </div>
-
-            <div class="message-area" aria-live="polite">
-                <div id="message">Enter a number between 1 and 100</div>
-                <div id="hintIndicator" style="color:rgba(255,255,255,0.85)"></div>
-            </div>
-
-            <div class="attempts-line" id="attemptDots" aria-hidden="true"></div>
-
-            <div class="controls-row">
-                <button class="control-btn" id="resetBtn"><i class="fas fa-redo"></i> Reset</button>
-                <button class="control-btn" id="newGameBtn"><i class="fas fa-plus"></i> New Game</button>
-            </div>
-
-            <div class="hint-section">
-                <h3 style="color:#ffd166;margin:0 0 8px 0">HINTS</h3>
-                <div class="hint-grid">
-                    <div class="hint-card">
-                        <h4>GREATER THAN</h4>
-                        <div class="hint-value" id="greaterThan">1</div>
-                    </div>
-                    <div class="hint-card">
-                        <h4>LESS THAN</h4>
-                        <div class="hint-value" id="lessThan">100</div>
-                    </div>
+            
+            <div class="game-info">
+                <div class="info-item">
+                    <div class="info-label">Guesses</div>
+                    <div class="info-value" id="guessCount">0</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">Time</div>
+                    <div class="info-value" id="timer">0s</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">Best Score</div>
+                    <div class="info-value" id="bestScore">-</div>
                 </div>
             </div>
-
-            <div class="leaderboard" aria-hidden="false">
-                <h3 style="margin:0 0 8px 0;color:#ffd166">BEST SCORES</h3>
-                <div class="leaderboard-item"><span>Easy:</span><span id="easyBest">-</span></div>
-                <div class="leaderboard-item"><span>Medium:</span><span id="mediumBest">-</span></div>
-                <div class="leaderboard-item"><span>Hard:</span><span id="hardBest">-</span></div>
+            
+            <div class="guess-display" id="guessDisplay">
+                Enter your guess
+            </div>
+            
+            <div class="hot-cold-indicator">
+                <div class="indicator-marker" id="indicatorMarker"></div>
+            </div>
+            
+            <div class="virtual-keyboard">
+                <button class="key" data-value="1">1</button>
+                <button class="key" data-value="2">2</button>
+                <button class="key" data-value="3">3</button>
+                <button class="key" data-value="4">4</button>
+                <button class="key" data-value="5">5</button>
+                <button class="key" data-value="6">6</button>
+                <button class="key" data-value="7">7</button>
+                <button class="key" data-value="8">8</button>
+                <button class="key" data-value="9">9</button>
+                <button class="key" data-value="0">0</button>
+                <button class="key" id="backspace"><i class="fas fa-backspace"></i></button>
+                <button class="key" id="clear">C</button>
+            </div>
+            
+            <div class="action-buttons">
+                <button class="action-btn check-btn" id="checkGuess">Check</button>
+                <button class="action-btn clear-btn" id="clearGuess">Clear</button>
+            </div>
+            
+            <div class="message" id="message"></div>
+            
+            <div class="leaderboard">
+                <h3>Best Scores</h3>
+                <div id="leaderboardList">
+                    <!-- Leaderboard items will be added here -->
+                </div>
             </div>
         </div>
     </div>
 
+    <!-- Decorative elements -->
+    <div class="sticker" style="top: 10%; left: 5%;">🔍</div>
+    <div class="sticker" style="top: 15%; right: 5%;">🎯</div>
+    <div class="sticker" style="bottom: 10%; left: 8%;">📱</div>
+    <div class="sticker" style="bottom: 15%; right: 8%;">🎮</div>
+
     <script>
-        (() => {
-            // Game state
-            let target = 0;
-            let currentInput = '';
-            let guessCount = 0;
-            const maxAttempts = 7;
-            let maxNumber = 100;
-            let difficulty = 'medium';
+        // Game variables
+        let targetNumber;
+        let guessCount = 0;
+        let startTime;
+        let timerInterval;
+        let currentDifficulty = 'medium';
+        let maxNumber = 100;
+        
+        // DOM elements
+        const themeToggle = document.getElementById('themeToggle');
+        const difficultyButtons = document.querySelectorAll('.difficulty-btn');
+        const guessDisplay = document.getElementById('guessDisplay');
+        const guessCountElement = document.getElementById('guessCount');
+        const timerElement = document.getElementById('timer');
+        const bestScoreElement = document.getElementById('bestScore');
+        const keys = document.querySelectorAll('.key[data-value]');
+        const backspaceKey = document.getElementById('backspace');
+        const clearKey = document.getElementById('clear');
+        const checkButton = document.getElementById('checkGuess');
+        const clearButton = document.getElementById('clearGuess');
+        const messageElement = document.getElementById('message');
+        const indicatorMarker = document.getElementById('indicatorMarker');
+        const leaderboardList = document.getElementById('leaderboardList');
+        
+        // Sound effects
+        const correctSound = new Audio('data:audio/wav;base64,UklGRigAAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YQQAAAAAAA');
+        const wrongSound = new Audio('data:audio/wav;base64,UklGRigAAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YQQAAAAAAA');
+        const highSound = new Audio('data:audio/wav;base64,UklGRigAAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YQQAAAAAAA');
+        const lowSound = new Audio('data:audio/wav;base64,UklGRigAAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YQQAAAAAAA');
+        
+        // Initialize the game
+        function initGame() {
+            // Generate a random target number based on difficulty
+            targetNumber = Math.floor(Math.random() * maxNumber) + 1;
+            guessCount = 0;
+            guessCountElement.textContent = guessCount;
+            clearGuess();
+            stopTimer();
+            startTimer();
+            updateBestScoreDisplay();
+            updateLeaderboard();
+            messageElement.className = 'message';
+            messageElement.textContent = '';
             
-            // DOM elements
-            const dotsRow = document.getElementById('dotsRow');
-            const inputDisplay = document.getElementById('inputDisplay');
-            const messageEl = document.getElementById('message');
-            const hintIndicator = document.getElementById('hintIndicator');
-            const guessCountEl = document.getElementById('guessCount');
-            const greaterEl = document.getElementById('greaterThan');
-            const lessEl = document.getElementById('lessThan');
-            const hiddenPic = document.getElementById('hiddenPicture');
-            const attemptDots = document.getElementById('attemptDots');
-            const bestScoreSpan = document.getElementById('bestScore');
+            // Position the indicator marker randomly at the start
+            updateHotColdIndicator(0);
+        }
+        
+        // Timer functions
+        function startTimer() {
+            startTime = new Date();
+            timerInterval = setInterval(updateTimer, 1000);
+        }
+        
+        function stopTimer() {
+            clearInterval(timerInterval);
+        }
+        
+        function updateTimer() {
+            const currentTime = new Date();
+            const elapsedSeconds = Math.floor((currentTime - startTime) / 1000);
+            timerElement.textContent = `${elapsedSeconds}s`;
+        }
+        
+        // Difficulty selection
+        difficultyButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                difficultyButtons.forEach(btn => btn.classList.remove('active'));
+                button.classList.add('active');
+                currentDifficulty = button.dataset.difficulty;
+                
+                switch(currentDifficulty) {
+                    case 'easy':
+                        maxNumber = 50;
+                        break;
+                    case 'medium':
+                        maxNumber = 100;
+                        break;
+                    case 'hard':
+                        maxNumber = 500;
+                        break;
+                }
+                
+                initGame();
+            });
+        });
+        
+        // Virtual keyboard functionality
+        keys.forEach(key => {
+            key.addEventListener('click', () => {
+                const value = key.dataset.value;
+                const currentGuess = guessDisplay.textContent === 'Enter your guess' ? '' : guessDisplay.textContent;
+                
+                // Prevent entering more than the maximum digits for the current difficulty
+                if (currentGuess.length < 3) {
+                    guessDisplay.textContent = currentGuess + value;
+                    key.classList.add('bounce');
+                    setTimeout(() => key.classList.remove('bounce'), 300);
+                }
+            });
+        });
+        
+        backspaceKey.addEventListener('click', () => {
+            const currentGuess = guessDisplay.textContent;
+            if (currentGuess !== 'Enter your guess' && currentGuess.length > 0) {
+                guessDisplay.textContent = currentGuess.slice(0, -1);
+                if (guessDisplay.textContent === '') {
+                    guessDisplay.textContent = 'Enter your guess';
+                }
+                backspaceKey.classList.add('bounce');
+                setTimeout(() => backspaceKey.classList.remove('bounce'), 300);
+            }
+        });
+        
+        clearKey.addEventListener('click', () => {
+            clearGuess();
+            clearKey.classList.add('bounce');
+            setTimeout(() => clearKey.classList.remove('bounce'), 300);
+        });
+        
+        clearButton.addEventListener('click', () => {
+            clearGuess();
+        });
+        
+        function clearGuess() {
+            guessDisplay.textContent = 'Enter your guess';
+        }
+        
+        // Check the guess
+        checkButton.addEventListener('click', checkGuess);
+        
+        function checkGuess() {
+            const guess = parseInt(guessDisplay.textContent);
             
-            // Hint tracking
-            let minPossible = 1;
-            let maxPossible = 100;
-
-            // Audio setup
-            const AudioCtx = window.AudioContext || window.webkitAudioContext;
-            const audioCtx = new AudioCtx();
-
-            function playTone(freq = 440, duration = 0.18, type = 'sine', gain = 0.2) {
-                if (audioCtx.state === 'suspended') return;
-                
-                const o = audioCtx.createOscillator();
-                const g = audioCtx.createGain();
-                o.type = type;
-                o.frequency.setValueAtTime(freq, audioCtx.currentTime);
-                g.gain.setValueAtTime(gain, audioCtx.currentTime);
-                o.connect(g);
-                g.connect(audioCtx.destination);
-                o.start();
-                g.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + duration);
-                setTimeout(() => {
-                    try {
-                        o.stop();
-                    } catch (e) {}
-                }, duration * 1000 + 20);
+            // Validate the guess
+            if (isNaN(guess) || guess < 1 || guess > maxNumber) {
+                showMessage(`Please enter a number between 1 and ${maxNumber}`, 'high');
+                return;
             }
-
-            function playSuccessJingle() {
-                const notes = [440, 554.37, 659.25];
-                let t = 0;
-                notes.forEach((n) => {
-                    setTimeout(() => playTone(n, 0.22, 'sine', 0.24), t * 1000);
-                    t += 0.25;
-                });
-                
-                setTimeout(() => {
-                    playTone(880, 0.5, 'triangle', 0.14);
-                    playTone(440, 0.5, 'sine', 0.12);
-                }, t * 1000 + 50);
-            }
-
-            function speak(text) {
-                if (!('speechSynthesis' in window)) return;
-                const u = new SpeechSynthesisUtterance(text);
-                u.rate = 0.95;
-                window.speechSynthesis.cancel();
-                window.speechSynthesis.speak(u);
-            }
-
-            // Helper functions
-            function randBetween(min, max) {
-                return Math.floor(Math.random() * (max - min + 1)) + min;
-            }
-
-            function updateInputDisplay() {
-                inputDisplay.textContent = currentInput || '_ _ _';
-            }
-
-            function saveBest(difficultyKey, value) {
-                localStorage.setItem('guess_best_' + difficultyKey, value);
-                renderBestScores();
-            }
-
-            function renderBestScores() {
-                ['easy', 'medium', 'hard'].forEach(level => {
-                    const val = localStorage.getItem('guess_best_' + level);
-                    const el = document.getElementById(level + 'Best');
-                    if (val) el.textContent = val;
-                    else el.textContent = '-';
-                });
-                
-                const mybest = localStorage.getItem('guess_best_' + difficulty);
-                bestScoreSpan.textContent = mybest ? mybest : '-';
-            }
-
-            function renderAttemptDots() {
-                attemptDots.innerHTML = '';
-                for (let i = 0; i < maxAttempts; i++) {
-                    const d = document.createElement('div');
-                    d.className = 'attempt-dot';
-                    if (i < guessCount) d.classList.add('used');
-                    attemptDots.appendChild(d);
-                }
-            }
-
-            // Animation helper
-            function animateValue(element, newValue) {
-                element.classList.add('updated');
-                element.textContent = newValue;
-                setTimeout(() => {
-                    element.classList.remove('updated');
-                }, 500);
-            }
-
-            // New game function
-            function newGame() {
-                try {
-                    if (audioCtx.state === 'suspended') audioCtx.resume();
-                } catch (e) {}
-                
-                guessCount = 0;
-                currentInput = '';
-                updateInputDisplay();
-                
-                // Set difficulty range
-                if (difficulty === 'easy') {
-                    maxNumber = 50;
-                } else if (difficulty === 'medium') {
-                    maxNumber = 100;
-                } else {
-                    maxNumber = 500;
-                }
-                
-                // Generate target number within the correct range
-                target = randBetween(1, maxNumber);
-                messageEl.textContent = `Pick a number between 1 and ${maxNumber}. You have ${maxAttempts} chances.`;
-                messageEl.classList.remove('correct-message');
-                hintIndicator.textContent = '';
-                
-                // Reset hint tracking
-                minPossible = 1;
-                maxPossible = maxNumber;
-                animateValue(greaterEl, minPossible);
-                animateValue(lessEl, maxPossible);
-                
-                hiddenPic.classList.remove('revealed');
-                guessCountEl.textContent = guessCount;
-                renderAttemptDots();
-                renderDotsRow();
-                renderBestScores();
-                
-                console.log('Target (debug):', target, 'Difficulty:', difficulty);
-            }
-
-            function renderDotsRow() {
-                dotsRow.innerHTML = '';
-                for (let i = 0; i < maxAttempts; i++) {
-                    const c = document.createElement('div');
-                    c.className = 'circle';
-                    if (i < guessCount) c.classList.add('used');
-                    else if (i === guessCount) c.classList.add('active');
-                    dotsRow.appendChild(c);
-                }
-            }
-
-            // Check guess function
-            function checkGuess() {
-                if (!currentInput) {
-                    messageEl.textContent = 'Enter a number to check';
-                    speak('Please enter a number');
-                    playTone(220, 0.08, 'sine', 0.06);
-                    return;
-                }
-                
-                const guess = parseInt(currentInput, 10);
-                if (isNaN(guess) || guess < 1 || guess > maxNumber) {
-                    messageEl.textContent = `Enter a valid number 1–${maxNumber}`;
-                    speak('Invalid guess');
-                    playTone(180, 0.12, 'sine', 0.06);
-                    currentInput = '';
-                    updateInputDisplay();
-                    return;
-                }
-
-                guessCount++;
-                guessCountEl.textContent = guessCount;
-                renderDotsRow();
-                renderAttemptDots();
-
+            
+            guessCount++;
+            guessCountElement.textContent = guessCount;
+            
+            // Check if the guess is correct
+            if (guess === targetNumber) {
                 // Correct guess
-                if (guess === target) {
-                    messageEl.textContent = '🎉 Correct! Phone unlocked!';
-                    messageEl.classList.add('correct-message');
-                    hiddenPic.classList.add('revealed');
-                    playSuccessJingle();
-                    speak('Congratulations! You guessed it correct!');
-                    
-                    const prev = parseInt(localStorage.getItem('guess_best_' + difficulty) || '999', 10);
-                    if (guessCount < prev) {
-                        saveBest(difficulty, guessCount);
-                    }
-                    
-                    currentInput = '';
-                    updateInputDisplay();
-                    return;
-                }
-
-                // Wrong guess
-                if (guess > target) {
-                    messageEl.textContent = `Too high — try a number less than ${guess}`;
-                    maxPossible = Math.min(maxPossible, guess - 1);
-                    animateValue(lessEl, maxPossible);
-                    playTone(220, 0.22, 'sine', 0.16);
-                    speak('Lower');
+                stopTimer();
+                showMessage('Correct! 🎉 You guessed the number!', 'correct');
+                correctSound.play();
+                celebrate();
+                saveScore();
+                updateLeaderboard();
+            } else {
+                // Incorrect guess
+                const difference = Math.abs(guess - targetNumber);
+                const percentage = (difference / maxNumber) * 100;
+                
+                // Update hot/cold indicator
+                updateHotColdIndicator(percentage);
+                
+                // Provide feedback
+                if (guess < targetNumber) {
+                    showMessage('Try higher! 🔼', 'low');
+                    lowSound.play();
                 } else {
-                    messageEl.textContent = `Too low — try a number greater than ${guess}`;
-                    minPossible = Math.max(minPossible, guess + 1);
-                    animateValue(greaterEl, minPossible);
-                    playTone(880, 0.18, 'sine', 0.14);
-                    speak('Higher');
+                    showMessage('Try lower! 🔽', 'high');
+                    highSound.play();
                 }
-
-                // Game over
-                if (guessCount >= maxAttempts) {
-                    if (guess !== target) {
-                        messageEl.textContent = `❌ Out of tries! The number was ${target}`;
-                        speak(`Game over. The number was ${target}`);
-                        playTone(120, 0.45, 'sine', 0.12);
-                    }
-                }
-
-                currentInput = '';
-                updateInputDisplay();
+                
+                // Add bounce animation to the check button
+                checkButton.classList.add('bounce');
+                setTimeout(() => checkButton.classList.remove('bounce'), 300);
             }
-
-            // Event listeners
-            document.querySelectorAll('.key').forEach(k => {
-                k.addEventListener('click', (e) => {
-                    const v = k.getAttribute('data-value');
-                    if (!v) return;
-                    
-                    const maxDigits = String(maxNumber).length;
-                    if (currentInput.length >= maxDigits) {
-                        playTone(180, 0.06, 'sine', 0.06);
-                        return;
-                    }
-                    
-                    currentInput += v;
-                    updateInputDisplay();
-                });
-            });
-
-            document.getElementById('backspaceBtn').addEventListener('click', () => {
-                currentInput = currentInput.slice(0, -1);
-                updateInputDisplay();
-            });
-
-            document.getElementById('clearBtn').addEventListener('click', () => {
-                currentInput = '';
-                updateInputDisplay();
-                playTone(180, 0.06, 'sine', 0.06);
-            });
-
-            // Both check buttons work the same
-            document.getElementById('checkBtn').addEventListener('click', () => {
-                checkGuess();
-            });
-
-            document.getElementById('checkKeypadBtn').addEventListener('click', () => {
-                checkGuess();
-            });
-
-            document.getElementById('resetBtn').addEventListener('click', () => {
-                newGame();
-            });
-
-            document.getElementById('newGameBtn').addEventListener('click', () => {
-                newGame();
-            });
-
-            // Difficulty buttons
-            document.querySelectorAll('.difficulty-btn').forEach(b => {
-                b.addEventListener('click', () => {
-                    document.querySelectorAll('.difficulty-btn').forEach(x => x.classList.remove('active'));
-                    b.classList.add('active');
-                                        difficulty = b.dataset.difficulty;
-                    newGame();
-                });
-            });
-
-            // Keyboard support
-            document.addEventListener('keydown', (e) => {
-                if (e.key >= '0' && e.key <= '9') {
-                    const maxDigits = String(maxNumber).length;
-                    if (currentInput.length < maxDigits) {
-                        currentInput += e.key;
-                        updateInputDisplay();
-                        playTone(440 + (parseInt(e.key) * 20), 0.08, 'sine', 0.08);
-                    }
-                } else if (e.key === 'Backspace') {
-                    currentInput = currentInput.slice(0, -1);
-                    updateInputDisplay();
-                    playTone(180, 0.06, 'sine', 0.06);
-                } else if (e.key === 'Enter' || e.key === ' ') {
-                    checkGuess();
-                } else if (e.key === 'Escape') {
-                    currentInput = '';
-                    updateInputDisplay();
-                }
-            });
-
-            // Touch/click sound feedback
-            document.querySelectorAll('button').forEach(btn => {
-                btn.addEventListener('click', () => {
-                    playTone(330, 0.05, 'sine', 0.04);
-                });
-            });
-
-            // Initialize the game
-            newGame();
-
-            // Resume audio context on first interaction
-            function initAudio() {
-                if (audioCtx.state === 'suspended') {
-                    audioCtx.resume();
-                }
+        }
+        
+        // Update the hot/cold indicator
+        function updateHotColdIndicator(percentage) {
+            // Position the marker based on how close the guess is
+            // 0% = very hot (close), 100% = very cold (far)
+            const position = Math.min(percentage, 100);
+            indicatorMarker.style.left = `${position}%`;
+        }
+        
+        // Show message with animation
+        function showMessage(text, type) {
+            messageElement.textContent = text;
+            messageElement.className = `message ${type} show`;
+            
+            // Auto-hide the message after 3 seconds (unless it's a correct guess)
+            if (type !== 'correct') {
+                setTimeout(() => {
+                    messageElement.classList.remove('show');
+                }, 3000);
             }
-
-            document.addEventListener('click', initAudio, { once: true });
-            document.addEventListener('keydown', initAudio, { once: true });
-
-            // Accessibility improvements
-            document.querySelectorAll('.key').forEach(key => {
-                key.setAttribute('aria-label', `Number ${key.textContent}`);
+        }
+        
+        // Save score to localStorage
+        function saveScore() {
+            const elapsedSeconds = Math.floor((new Date() - startTime) / 1000);
+            const score = {
+                guesses: guessCount,
+                time: elapsedSeconds,
+                difficulty: currentDifficulty,
+                date: new Date().toLocaleDateString()
+            };
+            
+            // Get existing scores or initialize empty array
+            const scores = JSON.parse(localStorage.getItem('guessTheNumberScores')) || [];
+            
+            // Add new score
+            scores.push(score);
+            
+            // Sort by guesses (primary) and time (secondary)
+            scores.sort((a, b) => {
+                if (a.guesses !== b.guesses) {
+                    return a.guesses - b.guesses;
+                }
+                return a.time - b.time;
             });
-
-            document.getElementById('clearBtn').setAttribute('aria-label', 'Clear input');
-            document.getElementById('backspaceBtn').setAttribute('aria-label', 'Backspace');
-            document.getElementById('checkBtn').setAttribute('aria-label', 'Check guess');
-            document.getElementById('resetBtn').setAttribute('aria-label', 'Reset game');
-            document.getElementById('newGameBtn').setAttribute('aria-label', 'New game');
-
-            // Screen reader announcements
-            function announce(message) {
-                const announcer = document.getElementById('message');
-                announcer.setAttribute('aria-live', 'polite');
-                announcer.textContent = message;
+            
+            // Keep only top 5 scores
+            const topScores = scores.slice(0, 5);
+            
+            // Save back to localStorage
+            localStorage.setItem('guessTheNumberScores', JSON.stringify(topScores));
+        }
+        
+        // Update best score display
+        function updateBestScoreDisplay() {
+            const scores = JSON.parse(localStorage.getItem('guessTheNumberScores')) || [];
+            const bestScore = scores[0];
+            
+            if (bestScore) {
+                bestScoreElement.textContent = `${bestScore.guesses} guesses`;
+            } else {
+                bestScoreElement.textContent = '-';
             }
-        })();
+        }
+        
+        // Update leaderboard
+        function updateLeaderboard() {
+            const scores = JSON.parse(localStorage.getItem('guessTheNumberScores')) || [];
+            leaderboardList.innerHTML = '';
+            
+            if (scores.length === 0) {
+                leaderboardList.innerHTML = '<div class="leaderboard-item">No scores yet</div>';
+                return;
+            }
+            
+            scores.forEach((score, index) => {
+                const item = document.createElement('div');
+                item.className = 'leaderboard-item';
+                item.innerHTML = `
+                    <span>${index + 1}. ${score.guesses} guesses</span>
+                    <span>${score.time}s (${score.difficulty})</span>
+                `;
+                leaderboardList.appendChild(item);
+            });
+        }
+        
+        // Celebration animation
+        function celebrate() {
+            // Create confetti
+            for (let i = 0; i < 100; i++) {
+                const confetti = document.createElement('div');
+                confetti.className = 'confetti';
+                confetti.style.left = `${Math.random() * 100}%`;
+                confetti.style.backgroundColor = getRandomColor();
+                confetti.style.animation = `confettiFall ${Math.random() * 3 + 2}s linear forwards`;
+                document.body.appendChild(confetti);
+                
+                // Remove confetti after animation
+                setTimeout(() => {
+                    confetti.remove();
+                }, 5000);
+            }
+            
+            // Add bounce animation to the container
+            document.querySelector('.container').style.animation = 'bounce 0.5s ease 3';
+            setTimeout(() => {
+                document.querySelector('.container').style.animation = '';
+            }, 1500);
+        }
+        
+        // Helper function to get random color
+        function getRandomColor() {
+            const colors = ['#4361ee', '#3a0ca3', '#f72585', '#4cc9f0', '#f8961e', '#e63946'];
+            return colors[Math.floor(Math.random() * colors.length)];
+        }
+        
+        // Theme toggle
+        themeToggle.addEventListener('click', () => {
+            document.body.classList.toggle('dark-mode');
+            if (document.body.classList.contains('dark-mode')) {
+                themeToggle.innerHTML = '<i class="fas fa-sun"></i>';
+            } else {
+                themeToggle.innerHTML = '<i class="fas fa-moon"></i>';
+            }
+        });
+        
+        // Initialize the game when the page loads
+        window.addEventListener('load', () => {
+            initGame();
+            
+            // Add some initial animation to the container
+            document.querySelector('.container').style.animation = 'fadeIn 0.5s ease';
+        });
     </script>
 </body>
 </html>
