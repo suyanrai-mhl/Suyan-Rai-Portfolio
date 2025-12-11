@@ -1,0 +1,518 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>DD Clues Analyzer — CSV Explorer</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <style>
+    body{padding:18px;background:#f7f9fc}
+    .monospace{font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
+    .table-preview{max-height:320px; overflow:auto; border:1px solid #e3e6ef; background:#fff}
+    .anomaly-row{background:rgba(255, 99, 132, 0.12)}
+    .small-muted{font-size:0.85rem;color:#6c757d}
+    .chart-wrap{height:320px}
+    /* Mobile friendly adjustments */
+  body { padding: 10px; }
+  table { font-size: 14px; }
+  .container { max-width: 100%; overflow-x: auto; }
+  input, select, button { width: 100%; max-width: 100%; margin-top: 6px; }
+  canvas { max-width: 100%; height: auto !important; }
+</style>
+</head>
+<body>
+<div class="container">
+  <h2>DD Clues Analyzer — single-file CSV web tool</h2>
+  <p class="small-muted">Drag & drop or choose a CSV. This page runs entirely in your browser — no server.</p>
+
+  <div class="row g-3">
+    <div class="col-md-4">
+      <div class="card p-3">
+        <label class="form-label">Upload CSV file</label>
+        <input id="fileInput" type="file" accept=".csv,text/csv" class="form-control" />
+        <div class="form-text">UTF-8 CSV recommended.</div>
+
+        <hr />
+        <label class="form-label">Preview controls</label>
+        <div class="mb-2">
+          <button id="btnPreviewAll" class="btn btn-sm btn-outline-primary me-1">Preview all</button>
+          <button id="btnPreviewHead" class="btn btn-sm btn-outline-secondary">Preview head (50)</button>
+        </div>
+
+        <label class="form-label mt-2">Anomaly detection</label>
+        <select id="numCol" class="form-select mb-2"><option value="">Select numeric column...</option></select>
+        <div class="input-group mb-2">
+          <button id="btnIQR" class="btn btn-sm btn-outline-danger">Detect (IQR)</button>
+          <button id="btnZ" class="btn btn-sm btn-outline-warning">Detect (Z-score)</button>
+          <button id="btnDownloadAnom" class="btn btn-sm btn-primary ms-auto">Download anomalies</button>
+        </div>
+
+        <hr />
+        <label class="form-label">Group / Aggregate</label>
+        <div class="mb-2">
+          <select id="groupByCol" class="form-select mb-1"><option value="">Group by...</option></select>
+          <select id="aggCol" class="form-select mb-1"><option value="">Aggregate column...</option></select>
+          <select id="aggFunc" class="form-select mb-1"><option value="sum">sum</option><option value="avg">avg</option><option value="count">count</option></select>
+          <button id="btnGroup" class="btn btn-sm btn-success w-100">Run group & aggregate</button>
+        </div>
+
+      </div>
+
+      <div class="card p-3 mt-3">
+        <label class="form-label">Date / Time analysis</label>
+        <select id="dateCol" class="form-select mb-2"><option value="">Select date column...</option></select>
+        <select id="dateAgg" class="form-select mb-2"><option value="day">Day</option><option value="week">Week</option><option value="month">Month</option><option value="year">Year</option></select>
+        <button id="btnDateAnalysis" class="btn btn-sm btn-primary w-100">Run time series</button>
+      </div>
+
+    </div>
+
+    <div class="col-md-8">
+      <div class="card p-3 mb-3">
+        <h5>Data preview</h5>
+        <div id="previewInfo" class="small-muted mb-2">No file loaded.</div>
+        <div id="tablePreview" class="table-preview"></div>
+      </div>
+
+      <div class="row">
+        <div class="col-md-6">
+          <div class="card p-3 mb-3">
+            <h6>Descriptive statistics</h6>
+            <div id="statsArea" class="small-muted">(load data and click a numeric column to see stats)</div>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="card p-3 mb-3">
+            <h6>Categorical unique counts</h6>
+            <div id="catStats" class="small-muted">Select a categorical column below to see counts.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card p-3 mb-3">
+        <h6>Visualizations</h6>
+        <div class="d-flex gap-2 mb-2">
+          <select id="visType" class="form-select w-auto"><option value="bar">Bar</option><option value="line">Line</option><option value="hist">Histogram</option></select>
+          <select id="xCol" class="form-select w-auto"><option value="">X column</option></select>
+          <select id="yCol" class="form-select w-auto"><option value="">Y column (for bar/line)</option></select>
+          <button id="btnPlot" class="btn btn-sm btn-outline-primary">Plot</button>
+        </div>
+        <div class="chart-wrap"><canvas id="mainChart"></canvas></div>
+      </div>
+
+      <div class="card p-3 mb-3">
+        <h6>Filters</h6>
+        <div class="d-flex gap-2 mb-2">
+          <select id="filterCol" class="form-select w-auto"><option value="">Column</option></select>
+          <input id="filterVal" class="form-control w-50" placeholder="value or condition (>, <, =, contains)" />
+          <button id="btnFilter" class="btn btn-sm btn-outline-secondary">Apply</button>
+          <button id="btnClearFilter" class="btn btn-sm btn-outline-danger">Clear</button>
+        </div>
+        <div class="small-muted">Filtered results will update the preview and stats. You can export transformed data via the download button in the preview header.</div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="mt-3 small-muted">Made for DD clue CSV analysis. Works fully in-browser.</div>
+</div>
+
+<script>
+// State
+let rawData = [];
+let headers = [];
+let parsedRows = []; // array of objects
+let filteredRows = null;
+let currentChart = null;
+let lastAnomalies = [];
+
+function readFile(file){
+  Papa.parse(file, {
+    header: true,
+    dynamicTyping: false,
+    skipEmptyLines: true,
+    complete: function(results){
+      headers = results.meta.fields || [];
+      rawData = results.data || [];
+      parsedRows = rawData.map(r => ({...r}));
+      filteredRows = null;
+      setupUIAfterLoad();
+      showPreview(50);
+    },
+    error: function(err){ alert('Parse error: '+err); }
+  });
+}
+
+// UI hooks
+const fileInput = document.getElementById('fileInput');
+fileInput.addEventListener('change', (e)=>{ const f = e.target.files[0]; if(f) readFile(f); });
+
+function setupUIAfterLoad(){
+  document.getElementById('previewInfo').textContent = `${parsedRows.length} rows × ${headers.length} columns loaded`;
+  // populate selects
+  const selects = ['numCol','groupByCol','aggCol','dateCol','xCol','yCol','filterCol','catStats','xCol','yCol','xCol'];
+  const uniqueSelects = Array.from(new Set(selects));
+  uniqueSelects.forEach(id=>{
+    const sel = document.getElementById(id);
+    if(!sel) return;
+    sel.innerHTML='';
+    const first = document.createElement('option'); first.value=''; first.textContent = id==='aggCol' ? 'Aggregate column...' : '...';
+    sel.appendChild(first);
+    headers.forEach(h=>{ const o=document.createElement('option'); o.value=h; o.textContent=h; sel.appendChild(o); });
+  });
+
+  // also add to table columns preview
+  renderTableHead();
+}
+
+function renderTableHead(){
+  const container = document.getElementById('tablePreview');
+  container.innerHTML = '';
+}
+
+function showPreview(n=0){
+  const container = document.getElementById('tablePreview');
+  const rows = filteredRows || parsedRows;
+  const slice = (n>0) ? rows.slice(0,n) : rows;
+  const table = document.createElement('table'); table.className='table table-sm table-striped m-0';
+  const thead = document.createElement('thead');
+  const tr = document.createElement('tr'); headers.forEach(h=>{ const th=document.createElement('th'); th.textContent=h; tr.appendChild(th); }); thead.appendChild(tr); table.appendChild(thead);
+  const tbody = document.createElement('tbody');
+  slice.forEach((r,i)=>{ const tr = document.createElement('tr'); tr.dataset.idx = i; headers.forEach(h=>{ const td=document.createElement('td'); td.textContent = (r[h]===undefined || r[h]===null) ? '' : r[h]; tr.appendChild(td); }); tbody.appendChild(tr); });
+  table.appendChild(tbody);
+  container.innerHTML = '';
+  const headerRow = document.createElement('div'); headerRow.className='d-flex align-items-center mb-2';
+  const left = document.createElement('div'); left.className='me-auto'; left.innerHTML = `<strong>Preview (${slice.length} rows shown)</strong>`;
+  const downloadBtn = document.createElement('button'); downloadBtn.className='btn btn-sm btn-outline-primary ms-2'; downloadBtn.textContent='Download shown CSV';
+  downloadBtn.addEventListener('click',()=>downloadCSV(slice,'preview.csv'));
+  headerRow.appendChild(left); headerRow.appendChild(downloadBtn);
+  container.appendChild(headerRow);
+  container.appendChild(table);
+}
+
+document.getElementById('btnPreviewAll').addEventListener('click',()=>showPreview(0));
+document.getElementById('btnPreviewHead').addEventListener('click',()=>showPreview(50));
+
+// Helpers
+function toNumberArray(rows, col){
+  return rows.map(r=>{ const v=r[col]; if(v===null||v===undefined||v==='') return NaN; const n = Number(String(v).replace(/[,\s]/g,'')); return isNaN(n)?NaN:n; });
+}
+
+function numericColumns(){
+  const sample = parsedRows.slice(0,Math.min(200,parsedRows.length));
+  return headers.filter(h => {
+    const vals = sample.map(r=>r[h]);
+    const nonEmpty = vals.filter(v=>v!==null && v!==undefined && String(v).trim()!=='');
+    if(nonEmpty.length===0) return false;
+    // consider numeric if at least 70% parse as numbers
+    const parsed = nonEmpty.map(v => { const n = Number(String(v).replace(/[,\s]/g,'')); return isFinite(n); });
+    const pct = parsed.filter(Boolean).length / nonEmpty.length;
+    return pct>=0.7;
+  });
+}
+
+function isDateColumn(col){
+  const sample = parsedRows.slice(0,Math.min(200,parsedRows.length)).map(r=>r[col]);
+  const parsed = sample.filter(v=>v!==null && v!==undefined && String(v).trim()!=='').map(v=>Date.parse(v));
+  if(parsed.length===0) return false;
+  const validCount = parsed.filter(p=>!isNaN(p)).length;
+  return (validCount/parsed.length)>=0.7;
+}
+
+// Stats
+function descriptiveStats(col){
+  const rows = filteredRows || parsedRows;
+  const arr = toNumberArray(rows,col).filter(n=>!isNaN(n));
+  if(arr.length===0) return null;
+  arr.sort((a,b)=>a-b);
+  const sum = arr.reduce((s,v)=>s+v,0);
+  const mean = sum/arr.length;
+  const median = arr.length%2? arr[(arr.length-1)/2] : (arr[arr.length/2-1]+arr[arr.length/2])/2;
+  const q1 = arr[Math.floor((arr.length-1)*0.25)];
+  const q3 = arr[Math.floor((arr.length-1)*0.75)];
+  const sd = Math.sqrt(arr.reduce((s,v)=>s+(v-mean)*(v-mean),0)/arr.length);
+  return {count:arr.length, sum, mean, median, q1, q3, min:arr[0], max:arr[arr.length-1], sd};
+}
+
+// Populate numeric column select once loaded
+function refreshNumericSelects(){
+  const nums = numericColumns();
+  const numSel = document.getElementById('numCol'); numSel.innerHTML=''; const o0=document.createElement('option'); o0.value=''; o0.textContent='Select numeric column...'; numSel.appendChild(o0);
+  nums.forEach(n=>{ const o=document.createElement('option'); o.value=n; o.textContent=n; numSel.appendChild(o); });
+  // also populate aggCol choices with numeric and others
+  const agg = document.getElementById('aggCol'); agg.innerHTML=''; const oA=document.createElement('option'); oA.value=''; oA.textContent='Aggregate column...'; agg.appendChild(oA);
+  headers.forEach(h=>{ const o=document.createElement('option'); o.value=h; o.textContent=h; agg.appendChild(o); });
+}
+
+// show stats when numeric column clicked
+document.getElementById('numCol').addEventListener('change', ()=>{
+  const col = document.getElementById('numCol').value; if(!col) return; const s = descriptiveStats(col);
+  const el = document.getElementById('statsArea'); if(!s){ el.innerHTML='No numeric data found in this column (after filtering).'; return; }
+  el.innerHTML = `<div class="monospace">count: ${s.count}\nmean: ${s.mean.toFixed(4)}\nstd: ${s.sd.toFixed(4)}\nmin: ${s.min}\nq1: ${s.q1}\nmedian: ${s.median}\nq3: ${s.q3}\nmax: ${s.max}\nsum: ${s.sum}</div>`;
+});
+
+// Categorical counts
+function uniqueCounts(col){
+  const rows = filteredRows || parsedRows;
+  const map = new Map();
+  rows.forEach(r=>{ const v = r[col]===undefined||r[col]===null? '': String(r[col]); map.set(v, (map.get(v)||0)+1); });
+  const arr = Array.from(map.entries()).sort((a,b)=>b[1]-a[1]);
+  return arr;
+}
+
+// clicking categorical select
+const catStatsDiv = document.getElementById('catStats');
+function refreshCatSelect(){
+  const sel = document.getElementById('filterCol'); sel.innerHTML=''; const first = document.createElement('option'); first.value=''; first.textContent='Column'; sel.appendChild(first);
+  headers.forEach(h=>{ const o=document.createElement('option'); o.value=h; o.textContent=h; sel.appendChild(o); });
+}
+
+// Update many selects
+function refreshAllSelects(){
+  refreshNumericSelects(); refreshCatSelect();
+  // populate groupByCol
+  const g = document.getElementById('groupByCol'); g.innerHTML=''; const f0=document.createElement('option'); f0.value=''; f0.textContent='Group by...'; g.appendChild(f0);
+  headers.forEach(h=>{ const o=document.createElement('option'); o.value=h; o.textContent=h; g.appendChild(o); });
+  // date column select: only show likely date columns
+  const dateSel = document.getElementById('dateCol'); dateSel.innerHTML=''; const d0=document.createElement('option'); d0.value=''; d0.textContent='Select date column...'; dateSel.appendChild(d0);
+  headers.forEach(h=>{ if(isDateColumn(h)){ const o=document.createElement('option'); o.value=h; o.textContent=h; dateSel.appendChild(o); } });
+  // xCol,yCol
+  const xCol = document.getElementById('xCol'); const yCol = document.getElementById('yCol'); xCol.innerHTML=''; yCol.innerHTML=''; const x0=document.createElement('option'); x0.value=''; x0.textContent='X column'; xCol.appendChild(x0); const y0=document.createElement('option'); y0.value=''; y0.textContent='Y column'; yCol.appendChild(y0);
+  headers.forEach(h=>{ const o1=document.createElement('option'); o1.value=h; o1.textContent=h; xCol.appendChild(o1); const o2=document.createElement('option'); o2.value=h; o2.textContent=h; yCol.appendChild(o2); });
+}
+
+// Run when data loaded
+function setupAfterFile(){
+  refreshAllSelects();
+  document.getElementById('previewInfo').textContent = `${parsedRows.length} rows × ${headers.length} columns loaded`;
+}
+
+// Wait for parsing complete: hack by watching parsedRows
+const watcher = setInterval(()=>{ if(parsedRows.length>0){ setupAfterFile(); clearInterval(watcher); }}, 300);
+
+// Anomaly detection methods
+function detectIQR(col){
+  const rows = filteredRows || parsedRows;
+  const arr = toNumberArray(rows,col);
+  const vals = arr.map((v,i)=>({v,i})).filter(x=>!isNaN(x.v)).map(x=>x.v).sort((a,b)=>a-b);
+  if(vals.length===0) return [];
+  const q1 = vals[Math.floor((vals.length-1)*0.25)];
+  const q3 = vals[Math.floor((vals.length-1)*0.75)];
+  const iqr = q3 - q1; const lower = q1 - 1.5*iqr; const upper = q3 + 1.5*iqr;
+  const anomalies = [];
+  arr.forEach((val,idx)=>{ const n = val; if(isNaN(n)) return; if(n<lower || n>upper) anomalies.push({row: rows[idx], index: idx, value: n}); });
+  return anomalies;
+}
+
+function detectZ(col, threshold=3){
+  const rows = filteredRows || parsedRows;
+  const arr = toNumberArray(rows,col).map(n=>isNaN(n)?null:n).filter((_,i)=>true);
+  const clean = arr.filter(n=>n!==null);
+  if(clean.length===0) return [];
+  const mean = clean.reduce((s,v)=>s+v,0)/clean.length;
+  const sd = Math.sqrt(clean.reduce((s,v)=>s+(v-mean)*(v-mean),0)/clean.length);
+  const anomalies = [];
+  arr.forEach((n,idx)=>{ if(n===null) return; const z = sd===0 ? 0 : Math.abs((n-mean)/sd); if(z>threshold) anomalies.push({row:(filteredRows||parsedRows)[idx], index: idx, value: n, z}); });
+  return anomalies;
+}
+
+document.getElementById('btnIQR').addEventListener('click', ()=>{
+  const col = document.getElementById('numCol').value; if(!col) return alert('Select numeric column'); const an = detectIQR(col); lastAnomalies=an; highlightAnomalies(an); alert(`Detected ${an.length} anomalies (IQR)`);
+});
+
+document.getElementById('btnZ').addEventListener('click', ()=>{
+  const col = document.getElementById('numCol').value; if(!col) return alert('Select numeric column'); const an = detectZ(col,3); lastAnomalies=an; highlightAnomalies(an); alert(`Detected ${an.length} anomalies (Z-score)`);
+});
+
+function highlightAnomalies(anomalies){
+  // show preview and highlight rows if possible
+  showPreview(50);
+  const table = document.querySelector('#tablePreview table'); if(!table) return;
+  const tbody = table.querySelector('tbody'); if(!tbody) return;
+  // mark rows by comparing stringified row content
+  const rows = Array.from(tbody.querySelectorAll('tr'));
+  rows.forEach((tr,idx)=>{ tr.classList.remove('anomaly-row'); });
+  anomalies.forEach(a=>{
+    const targetIdx = a.index; const t = rows[targetIdx]; if(t) t.classList.add('anomaly-row');
+  });
+}
+
+function downloadCSV(rows, filename='export.csv'){
+  if(!rows) rows = filteredRows || parsedRows;
+  const csv = Papa.unparse(rows);
+  const blob = new Blob([csv], {type:'text/csv'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a'); a.href = url; a.download = filename; document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
+}
+
+document.getElementById('btnDownloadAnom').addEventListener('click', ()=>{
+  if(!lastAnomalies || lastAnomalies.length===0) return alert('No anomalies detected yet');
+  const rows = lastAnomalies.map(a => a.row);
+  downloadCSV(rows, 'anomalies.csv');
+});
+
+// Group by / aggregate
+document.getElementById('btnGroup').addEventListener('click', ()=>{
+  const group = document.getElementById('groupByCol').value; const agg = document.getElementById('aggCol').value; const func = document.getElementById('aggFunc').value;
+  if(!group) return alert('Select group-by column');
+  const rows = filteredRows || parsedRows;
+  const map = new Map();
+  rows.forEach(r=>{
+    const key = r[group]===undefined||r[group]===null? '': String(r[group]);
+    if(!map.has(key)) map.set(key, []);
+    map.get(key).push(r);
+  });
+  const result = [];
+  map.forEach((arr, key)=>{
+    if(func==='count') result.push({group:key, count:arr.length});
+    else{
+      let values = arr.map(a=>{ const v = a[agg]; if(v===null||v===undefined||v==='') return NaN; const n = Number(String(v).replace(/[,\s]/g,'')); return isNaN(n)?NaN:n; }).filter(v=>!isNaN(v));
+      if(values.length===0) values=[0];
+      const sum = values.reduce((s,v)=>s+v,0);
+      if(func==='sum') result.push({group:key, sum});
+      if(func==='avg') result.push({group:key, avg: sum/values.length});
+    }
+  });
+  // show results in preview
+  showGroupResults(result);
+});
+
+function showGroupResults(result){
+  const container = document.getElementById('tablePreview');
+  const table = document.createElement('table'); table.className='table table-sm table-striped m-0';
+  const thead = document.createElement('thead'); const tr = document.createElement('tr'); Object.keys(result[0]||{group:0}).forEach(k=>{ const th=document.createElement('th'); th.textContent=k; tr.appendChild(th); }); thead.appendChild(tr); table.appendChild(thead);
+  const tbody = document.createElement('tbody'); result.forEach(r=>{ const tr=document.createElement('tr'); Object.values(r).forEach(v=>{ const td=document.createElement('td'); td.textContent = v; tr.appendChild(td); }); tbody.appendChild(tr); }); table.appendChild(tbody);
+  container.innerHTML = '';
+  container.appendChild(table);
+}
+
+// Time series analysis
+function bucketDate(d, gran){
+  const dt = new Date(d);
+  if(isNaN(dt)) return null;
+  if(gran==='day') return dt.toISOString().slice(0,10);
+  if(gran==='month') return dt.getFullYear() + '-' + String(dt.getMonth()+1).padStart(2,'0');
+  if(gran==='year') return String(dt.getFullYear());
+  if(gran==='week'){
+    // ISO week-year week number
+    const tmp = new Date(Date.UTC(dt.getFullYear(), dt.getMonth(), dt.getDate()));
+    const dayNum = tmp.getUTCDay() || 7;
+    tmp.setUTCDate(tmp.getUTCDate() + 4 - dayNum);
+    const yearStart = new Date(Date.UTC(tmp.getUTCFullYear(),0,1));
+    const weekNo = Math.ceil((((tmp - yearStart) / 86400000) + 1)/7);
+    return tmp.getUTCFullYear() + '-W' + String(weekNo).padStart(2,'0');
+  }
+  return dt.toISOString().slice(0,10);
+}
+
+document.getElementById('btnDateAnalysis').addEventListener('click', ()=>{
+  const col = document.getElementById('dateCol').value; const gran = document.getElementById('dateAgg').value;
+  if(!col) return alert('Select a date column');
+  const rows = filteredRows || parsedRows;
+  const map = new Map();
+  rows.forEach(r=>{ const v = r[col]; const b = bucketDate(v, gran); if(!b) return; map.set(b, (map.get(b)||0)+1); });
+  const arr = Array.from(map.entries()).sort((a,b)=>a[0].localeCompare(b[0]));
+  const labels = arr.map(a=>a[0]); const values = arr.map(a=>a[1]);
+  plotChart(labels, values, 'line', `${col} (${gran})`);
+});
+
+// Plotting
+function plotChart(labels, values, type='bar', label=''){
+  const ctx = document.getElementById('mainChart').getContext('2d');
+  if(currentChart) currentChart.destroy();
+  currentChart = new Chart(ctx, { type: type==='hist' ? 'bar' : type, data: { labels, datasets: [{ label: label || 'Series', data: values, fill:false, tension:0.3 }] }, options: { responsive:true, maintainAspectRatio:false } });
+}
+
+document.getElementById('btnPlot').addEventListener('click', ()=>{
+  const type = document.getElementById('visType').value;
+  const x = document.getElementById('xCol').value; const y = document.getElementById('yCol').value;
+  if(!x) return alert('Select X column');
+  const rows = filteredRows || parsedRows;
+  if(type==='hist'){
+    // histogram of x numeric
+    const arr = toNumberArray(rows, x).filter(n=>!isNaN(n));
+    if(arr.length===0) return alert('No numeric data for histogram');
+    // compute simple bins
+    const bins = 20; const min=Math.min(...arr); const max=Math.max(...arr); const width=(max-min)/bins; const counts = new Array(bins).fill(0);
+    arr.forEach(v=>{ const i = Math.min(bins-1, Math.floor((v-min)/width)); counts[i]++; });
+    const labels = counts.map((_,i)=>`${(min + i*width).toFixed(2)}..`);
+    plotChart(labels, counts, 'hist', x+' distribution');
+  } else {
+    if(!y) return alert('Select Y column for bar/line');
+    // if x is non-numeric, group by x and aggregate y sum
+    const map = new Map();
+    rows.forEach(r=>{
+      const key = r[x]===undefined||r[x]===null? '': String(r[x]); const yv = Number(String(r[y]).replace(/[,\s]/g,'')); const n = isNaN(yv)?0:yv; map.set(key, (map.get(key)||0)+n);
+    });
+    const arr = Array.from(map.entries()).sort((a,b)=>b[1]-a[1]);
+    const labels = arr.map(a=>a[0]); const values = arr.map(a=>a[1]);
+    plotChart(labels, values, type, `${y} by ${x}`);
+  }
+});
+
+// Filters
+document.getElementById('btnFilter').addEventListener('click', ()=>{
+  const col = document.getElementById('filterCol').value; const cond = document.getElementById('filterVal').value.trim();
+  if(!col || !cond) return alert('Select column and enter a condition');
+  const rows = parsedRows;
+  // support conditions like >100, <50, =abc, contains abc
+  let op = 'contains', value = cond;
+  if(cond.startsWith('>')){ op='>'; value = cond.slice(1).trim(); }
+  else if(cond.startsWith('<')){ op='<'; value = cond.slice(1).trim(); }
+  else if(cond.startsWith('=')){ op='='; value = cond.slice(1).trim(); }
+  const newRows = rows.filter(r=>{
+    const cell = r[col]; if(cell===undefined||cell===null) return false;
+    const s = String(cell);
+    if(op==='contains') return s.toLowerCase().includes(value.toLowerCase());
+    if(op==='=') return s === value;
+    const num = Number(s.replace(/[,\s]/g,'')); const vnum = Number(value);
+    if(isNaN(num) || isNaN(vnum)) return false;
+    if(op==='>') return num>vnum; if(op==='<') return num<vnum;
+    return false;
+  });
+  filteredRows = newRows;
+  showPreview(50);
+  refreshAllSelects();
+});
+
+document.getElementById('btnClearFilter').addEventListener('click', ()=>{ filteredRows = null; showPreview(50); refreshAllSelects(); });
+
+// Allow clicking on categorical column to show top counts - naive: listen to filterCol change
+document.getElementById('filterCol').addEventListener('change', ()=>{
+  const col = document.getElementById('filterCol').value; if(!col) return; const arr = uniqueCounts(col);
+  const cont = document.getElementById('catStats'); cont.innerHTML = '<strong>Top values</strong><br/>' + arr.slice(0,20).map(a=>`${a[0]} — ${a[1]}`).join('<br/>');
+});
+
+// small helpers: when file loaded, trigger select population
+fileInput.addEventListener('change', ()=>{ setTimeout(()=>{ if(parsedRows.length>0) setupAfterFile(); },300); });
+
+// Keyboard shortcuts: D to download all
+window.addEventListener('keydown', (e)=>{ if((e.ctrlKey||e.metaKey) && e.key.toLowerCase()==='d'){ e.preventDefault(); downloadCSV(null,'export.csv'); } });
+
+</script>
+
+</body>
+</html>
+ <!-- New Button for Chat History -->
+  <section class="card">
+    <button id="chatHistoryBtn" class="btn-ghost" onclick="window.open('https://chatgpt.com/share/693a41fb-cc68-8008-af31-6a77589894f6', '_blank')">View Chat History</button>
+  </section>
+
+  <div class="footer">
+    <div class="small">Tip: For Google Sheets export to CSV first (File → Download → CSV) then upload.</div>
+    <div class="small">Built for mobile & desktop </div>
+  </div>
+</div>
+
+<!-- Libraries -->
+<script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
+
+<script>
+// Add your existing JavaScript code here
+</script>
+
+</body>
